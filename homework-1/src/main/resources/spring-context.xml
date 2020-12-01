@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="csvResourceProvider" class="ru.otus.spring.providers.ResourceProvider">
+    <constructor-arg value="questions.csv"/>
+  </bean>
+
+  <bean id="csvQuestionLoader" class="ru.otus.spring.loaders.QuestionLoaderCsv">
+    <constructor-arg ref="csvResourceProvider"/>
+  </bean>
+
+  <bean id="consoleInteractor" class="ru.otus.spring.interactors.ConsolePrintQuestionInteractor">
+    <constructor-arg ref="csvQuestionLoader"/>
+  </bean>
+
+</beans>
