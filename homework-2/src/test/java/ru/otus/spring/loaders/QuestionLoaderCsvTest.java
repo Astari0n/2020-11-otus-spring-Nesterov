@@ -9,7 +9,7 @@ import org.mockito.Mockito;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 
-import ru.otus.spring.exceptions.QuestionLoadException;
+import ru.otus.spring.exceptions.LoadException;
 import ru.otus.spring.model.Question;
 import ru.otus.spring.providers.ResourceProvider;
 
@@ -23,7 +23,7 @@ import java.util.List;
 @DisplayName("Класс QuestionLoaderCsv")
 public class QuestionLoaderCsvTest {
 
-    @DisplayName("Корректно читает строки из существующего файла ресурса и не выбрасывает исключение")
+    @DisplayName("корректно читает строки из существующего файла ресурса и не выбрасывает исключение")
     @Test
     public void should_Correctly_Read_Resource() {
         final List<String> resourceList = new ArrayList<>(Arrays.asList(
@@ -42,7 +42,7 @@ public class QuestionLoaderCsvTest {
         Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(resourceList, loaderCsv.readAllLinesInResource()));
     }
 
-    @DisplayName("Выбрасывает QuestionLoadException если при чтении из файла ресурса был выброшен IOException")
+    @DisplayName("выбрасывает QuestionLoadException если при чтении из файла ресурса был выброшен IOException")
     @Test
     public void should_Throw_While_Read_Resource() throws IOException {
         final Resource resource = Mockito.mock(Resource.class);
@@ -54,11 +54,11 @@ public class QuestionLoaderCsvTest {
         final QuestionLoaderCsv loaderCsv = Mockito.mock(QuestionLoaderCsv.class,
             Mockito.withSettings().useConstructor(resourceProvider).defaultAnswer(Mockito.CALLS_REAL_METHODS));
 
-        Assertions.assertThrows(QuestionLoadException.class, loaderCsv::readAllLinesInResource);
+        Assertions.assertThrows(LoadException.class, loaderCsv::readAllLinesInResource);
     }
 
 
-    @DisplayName("Выбрасывает QuestionLoadException при парсинге если ресурс имеет невалидную csv структуру")
+    @DisplayName("выбрасывает QuestionLoadException при парсинге если ресурс имеет невалидную csv структуру")
     @Test
     public void should_Throw_QuestionLoadException_On_Invalid_CSV_Structure() {
         final List<String> resourceList = new ArrayList<>(Arrays.asList(
@@ -75,12 +75,12 @@ public class QuestionLoaderCsvTest {
         final QuestionLoaderCsv loaderCsv = Mockito.mock(QuestionLoaderCsv.class,
             Mockito.withSettings().useConstructor(resourceProvider).defaultAnswer(Mockito.CALLS_REAL_METHODS));
 
-        Assertions.assertThrows(QuestionLoadException.class, loaderCsv::load);
+        Assertions.assertThrows(LoadException.class, loaderCsv::load);
     }
 
-    @DisplayName("Корректно парсит симулированный ресурс на вопрос и ответы к нему")
+    @DisplayName("корректно парсит симулированный ресурс на вопрос и ответы к нему")
     @Test
-    public void shouldHaveCorrectParseToQuestionAndAnswers() throws QuestionLoadException {
+    public void shouldHaveCorrectParseToQuestionAndAnswers() throws LoadException {
         final List<String> resourceList = new ArrayList<>(Arrays.asList(
             "1 or 2?;3",
             "Answer is 3, 4 and 5;3;4;5",

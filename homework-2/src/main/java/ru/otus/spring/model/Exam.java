@@ -2,16 +2,16 @@ package ru.otus.spring.model;
 
 import java.util.List;
 
-public class ExamTest {
+public class Exam<Q> {
 
-    final private List<Question> questions;
+    final private List<Q> questions;
 
     final private int numberOfQuestionsToAsk;
 
     final private int numberOfQuestionsToPassTheTest;
 
-    public ExamTest(
-        final List<Question> questions,
+    public Exam(
+        final List<Q> questions,
         final int numberOfQuestionsToAsk,
         final int numberOfQuestionsToPassTheTest
     ) {
@@ -20,7 +20,7 @@ public class ExamTest {
         this.numberOfQuestionsToPassTheTest = numberOfQuestionsToPassTheTest;
     }
 
-    public List<Question> getQuestions() {
+    public List<Q> getQuestions() {
         return questions;
     }
 

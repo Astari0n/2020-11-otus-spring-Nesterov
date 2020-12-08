@@ -1,8 +1,16 @@
 package ru.otus.spring.services;
 
+import java.io.IOException;
+
 public interface IOService {
 
-    String readString();
+    String read() throws IOException;
 
-    void writeString(String s);
+    void print(String s) throws IOException;
+
+    void println(String s) throws IOException;
+
+    void println() throws IOException;
+
+    void printf(String s, final Object... args) throws IOException;
 }

@@ -1,5 +1,7 @@
 package ru.otus.spring.model;
 
+import org.assertj.core.api.Assertions;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -7,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Класс Question")
 class QuestionTest {
@@ -27,35 +28,35 @@ class QuestionTest {
         this.question = new Question(inputQuestion, answers);
     }
 
-    @DisplayName("Корректно создается конструктором")
+    @DisplayName("корректно создается конструктором")
     @Test
     void shouldHaveCorrectConstructor() {
-        assertEquals(inputQuestion, question.getQuestion());
-        assertEquals(answers, question.getAnswers());
+        Assertions.assertThat(question.getQuestion()).isEqualTo(inputQuestion);
+        Assertions.assertThat(question.getAnswers()).isEqualTo(answers);
     }
 
-    @DisplayName("Выводит вопрос в текстовом виде")
+    @DisplayName("выводит вопрос в текстовом виде")
     @Test
     void shouldHaveCorrectToString() {
-        assertEquals(inputQuestion, question.toString());
+        Assertions.assertThat(question.toString()).isEqualTo(inputQuestion);
     }
 
-    @DisplayName("Проверяет неверный ответ на вопрос в любом регистре")
+    @DisplayName("проверяет неверный ответ на вопрос в любом регистре")
     @Test
     void shouldHaveIncorrectAnswerResult() {
-        assertFalse(question.isAnswerCorrect("неверный ответ"));
-        assertFalse(question.isAnswerCorrect("даа"));
-        assertFalse(question.isAnswerCorrect("не"));
-        assertFalse(question.isAnswerCorrect("НЕЕТ"));
+        Assertions.assertThat(question.isAnswerCorrect("неверный ответ")).isFalse();
+        Assertions.assertThat(question.isAnswerCorrect("даа")).isFalse();
+        Assertions.assertThat(question.isAnswerCorrect("не")).isFalse();
+        Assertions.assertThat(question.isAnswerCorrect("НЕЕТ")).isFalse();
     }
 
-    @DisplayName("Проверяет верный ответ на вопрос в любом регистре")
+    @DisplayName("проверяет верный ответ на вопрос в любом регистре")
     @Test
     void shouldHaveCorrectAnswerResult() {
-        assertTrue(question.isAnswerCorrect("да"));
-        assertTrue(question.isAnswerCorrect("ДА"));
-        assertTrue(question.isAnswerCorrect("нет"));
-        assertTrue(question.isAnswerCorrect("Нет"));
-        assertTrue(question.isAnswerCorrect("НЕТ"));
+        Assertions.assertThat(question.isAnswerCorrect("да")).isTrue();
+        Assertions.assertThat(question.isAnswerCorrect("ДА")).isTrue();
+        Assertions.assertThat(question.isAnswerCorrect("нет")).isTrue();
+        Assertions.assertThat(question.isAnswerCorrect("Нет")).isTrue();
+        Assertions.assertThat(question.isAnswerCorrect("НЕТ")).isTrue();
     }
 }
