@@ -9,9 +9,8 @@ import org.mockito.BDDMockito;
 
 import ru.otus.spring.exceptions.IOServiceException;
 import ru.otus.spring.exceptions.InteractionException;
+import ru.otus.spring.model.Question;
 import ru.otus.spring.services.io.IOService;
-
-import java.util.Collections;
 
 @DisplayName("Класс QuestionsInteractionServiceImpl")
 public class QuestionsInteractionServiceImplTest {
@@ -42,8 +41,8 @@ public class QuestionsInteractionServiceImplTest {
             .defaultAnswer(BDDMockito.CALLS_REAL_METHODS)
         );
 
-        Assertions.assertThatThrownBy(() -> service.interact(null)).isInstanceOf(InteractionException.class);
+        final Question question = BDDMockito.mock(Question.class);
 
-
+        Assertions.assertThatThrownBy(() -> service.interact(question)).isInstanceOf(InteractionException.class);
     }
 }
