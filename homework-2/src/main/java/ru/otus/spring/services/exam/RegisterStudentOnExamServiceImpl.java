@@ -1,36 +1,37 @@
-package ru.otus.spring.services;
+package ru.otus.spring.services.exam;
 
 import org.springframework.stereotype.Service;
-import ru.otus.spring.exceptions.RegisterException;
-import ru.otus.spring.model.Exam;
-import ru.otus.spring.model.Question;
-import ru.otus.spring.model.User;
 
-import java.io.IOException;
+import ru.otus.spring.exceptions.IOServiceException;
+import ru.otus.spring.exceptions.RegisterException;
+
+import ru.otus.spring.model.ExamForm;
+import ru.otus.spring.model.Student;
+import ru.otus.spring.services.io.IOService;
 
 @Service
-public class StudentRegisterService implements RegisterService<User, Exam<Question>> {
+public class RegisterStudentOnExamServiceImpl implements RegisterStudentOnExamService {
 
     private final IOService io;
 
-    public StudentRegisterService(final IOService ioService) {
+    public RegisterStudentOnExamServiceImpl(final IOService ioService) {
         this.io = ioService;
     }
 
     @Override
-    public User register(final Exam<Question> exam) throws RegisterException {
+    public Student register(final ExamForm exam) throws RegisterException {
         try {
-            return registerStudentOnExam(exam);
-        } catch (final IOException e) {
+            return registerStudent(exam);
+        } catch (final IOServiceException e) {
             throw new RegisterException(e);
         }
     }
 
-    public User registerStudentOnExam(final Exam<Question> exam) throws IOException {
+    public Student registerStudent(final ExamForm examForm) throws IOServiceException {
         io.printf(
             "Hello! To pass the exam you need to answer %d out of %d questions!",
-            exam.getNumberOfQuestionsToPassTheTest(),
-            exam.getNumberOfQuestionsToAsk()
+            examForm.getAmountOfCorrectAnswersToPassExam(),
+            examForm.getQuestions().size()
         );
         io.println();
 
@@ -46,10 +47,10 @@ public class StudentRegisterService implements RegisterService<User, Exam<Questi
         io.printf("Welcome, %s %s! Creating student session...", firstName, lastName);
         io.println();
 
-        return new User(firstName, lastName);
+        return new Student(firstName, lastName);
     }
 
-    private String getNonEmptyString(final String printText, final String errorMessage) throws IOException {
+    private String getNonEmptyString(final String printText, final String errorMessage) throws IOServiceException {
         io.print(printText);
         String result = io.read();
 

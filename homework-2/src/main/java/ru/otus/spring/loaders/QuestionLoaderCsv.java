@@ -1,6 +1,8 @@
 package ru.otus.spring.loaders;
 
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
 import ru.otus.spring.exceptions.LoadException;
 import ru.otus.spring.model.Question;
 import ru.otus.spring.providers.ResourceProvider;
@@ -12,11 +14,13 @@ import java.util.List;
 import java.util.Scanner;
 
 @Component
-public class QuestionLoaderCsv implements Loader<Question> {
+public class QuestionLoaderCsv implements QuestionLoader {
 
-    final private ResourceProvider resourceProvider;
+    private final ResourceProvider resourceProvider;
 
-    public QuestionLoaderCsv(final ResourceProvider resourceProvider) {
+    public QuestionLoaderCsv(
+        final ResourceProvider resourceProvider
+    ) {
         this.resourceProvider = resourceProvider;
     }
 

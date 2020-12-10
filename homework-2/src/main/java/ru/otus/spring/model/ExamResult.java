@@ -2,36 +2,58 @@ package ru.otus.spring.model;
 
 public class ExamResult {
 
-    private final int correctCount;
+    private final Student student;
 
-    private final int askedCount;
+    private final int correctAnswersCount;
 
-    private final int countToPassTheTest;
+    private final int questionsCount;
 
-    public ExamResult(int correctCount, int askedCount, int countToPassTheTest) {
-        this.correctCount = correctCount;
-        this.askedCount = askedCount;
-        this.countToPassTheTest = countToPassTheTest;
+    private final float completionPercentage;
+
+    private final String examMark;
+
+    public ExamResult(
+        final Student student,
+        final int questionsCount,
+        final int correctAnswersCount,
+        final float completionPercentage,
+        final String examMark
+    ) {
+        this.student = student;
+        this.correctAnswersCount = correctAnswersCount;
+        this.questionsCount = questionsCount;
+        this.completionPercentage = completionPercentage;
+        this.examMark = examMark;
     }
 
-    public int getCorrectCount() {
-        return correctCount;
+    public Student getStudent() {
+        return student;
     }
 
-    public int getAskedCount() {
-        return askedCount;
+    public int getCorrectAnswersCount() {
+        return correctAnswersCount;
     }
 
-    public int getCountToPassTheTest() {
-        return countToPassTheTest;
+    public int getQuestionsCount() {
+        return questionsCount;
+    }
+
+    public float getCompletionPercentage() {
+        return completionPercentage;
+    }
+
+    public String getExamMark() {
+        return examMark;
     }
 
     @Override
     public String toString() {
         return "ExamResult{" +
-            "correctCount=" + correctCount +
-            ", askedCount=" + askedCount +
-            ", countToPassTheTest=" + countToPassTheTest +
+            "student=" + student +
+            ", correctAnswersCount=" + correctAnswersCount +
+            ", questionsCount=" + questionsCount +
+            ", completionPercentage=" + completionPercentage +
+            ", examMark='" + examMark + '\'' +
             '}';
     }
 }

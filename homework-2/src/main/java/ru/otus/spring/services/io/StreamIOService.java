@@ -1,4 +1,4 @@
-package ru.otus.spring.services;
+package ru.otus.spring.services.io;
 
 import java.io.InputStream;
 import java.io.PrintStream;
