@@ -2,8 +2,9 @@ package ru.otus.spring.services.exam;
 
 import org.springframework.stereotype.Service;
 
-import ru.otus.spring.exceptions.EvaluationException;
+import ru.otus.spring.exceptions.ExamEvaluationException;
 
+import ru.otus.spring.exceptions.QuestionsAnswersMismatchExceptionExam;
 import ru.otus.spring.model.ExamAnswerForm;
 import ru.otus.spring.model.ExamForm;
 import ru.otus.spring.model.ExamResult;
@@ -16,7 +17,7 @@ import java.util.List;
 public class ExamEvaluationServiceImpl implements ExamEvaluationService {
 
     @Override
-    public ExamResult evaluate(final ExamAnswerForm answerForm) throws EvaluationException {
+    public ExamResult evaluate(final ExamAnswerForm answerForm) throws ExamEvaluationException {
         final ExamForm examForm = answerForm.getQuestionsForm();
 
         final List<Question> questions = examForm.getQuestions();
@@ -25,8 +26,8 @@ public class ExamEvaluationServiceImpl implements ExamEvaluationService {
         final List<String> answers = answerForm.getAnswers();
         final int answersCount = answers.size();
 
-        if (answersCount < questionsCount) {
-            throw new EvaluationException("Not all questions have answers");
+        if (answersCount != questionsCount) {
+            throw new QuestionsAnswersMismatchExceptionExam("The number of questions and answers does not match");
         }
 
         int correctAnswersCount = 0;

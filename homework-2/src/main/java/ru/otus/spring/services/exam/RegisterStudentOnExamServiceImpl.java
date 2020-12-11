@@ -3,7 +3,7 @@ package ru.otus.spring.services.exam;
 import org.springframework.stereotype.Service;
 
 import ru.otus.spring.exceptions.IOServiceException;
-import ru.otus.spring.exceptions.RegisterException;
+import ru.otus.spring.exceptions.ExamRegisterException;
 
 import ru.otus.spring.model.ExamForm;
 import ru.otus.spring.model.Student;
@@ -19,11 +19,11 @@ public class RegisterStudentOnExamServiceImpl implements RegisterStudentOnExamSe
     }
 
     @Override
-    public Student register(final ExamForm exam) throws RegisterException {
+    public Student register(final ExamForm exam) throws ExamRegisterException {
         try {
             return registerStudent(exam);
         } catch (final IOServiceException e) {
-            throw new RegisterException(e);
+            throw new ExamRegisterException(e);
         }
     }
 
@@ -35,11 +35,11 @@ public class RegisterStudentOnExamServiceImpl implements RegisterStudentOnExamSe
         );
         io.println();
 
-        final String firstName = getNonEmptyString(
+        final String firstName = io.readNonEmptyWithInfo(
             "Write your first name: ",
             "Error! Firstname is empty!");
 
-        final String lastName = getNonEmptyString(
+        final String lastName = io.readNonEmptyWithInfo(
             String.format("%s, write your last name: ", firstName),
             "Error! Lastname is empty!");
 
@@ -48,17 +48,5 @@ public class RegisterStudentOnExamServiceImpl implements RegisterStudentOnExamSe
         io.println();
 
         return new Student(firstName, lastName);
-    }
-
-    private String getNonEmptyString(final String printText, final String errorMessage) throws IOServiceException {
-        io.print(printText);
-        String result = io.read();
-
-        while (result.isEmpty()) {
-            io.println(errorMessage);
-            io.print(printText);
-            result = io.read();
-        }
-        return result;
     }
 }

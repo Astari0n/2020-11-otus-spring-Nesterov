@@ -11,7 +11,6 @@ import ru.otus.spring.loaders.QuestionLoader;
 import ru.otus.spring.model.Question;
 import ru.otus.spring.services.questions.QuestionsModifierService;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,20 +27,15 @@ public class ExamFormPreparerServiceImplTest {
 
     @BeforeEach
     public void beforeEach() {
-        this.questions = Arrays.asList(
-            new Question("question1", Collections.singletonList("answer1")),
-            new Question("question2", Collections.singletonList("answer2"))
-        );
-
+        this.questions = Collections.singletonList(new Question("question1", Collections.singletonList("answer1")));
         this.questionLoader = BDDMockito.mock(QuestionLoader.class);
 
         this.modifierService = BDDMockito.mock(QuestionsModifierService.class);
         BDDMockito.given(modifierService.modify(questions)).willReturn(questions);
 
-        this.service = BDDMockito.mock(ExamFormPreparerServiceImpl.class,
-            BDDMockito.withSettings()
-                .useConstructor(questionLoader, modifierService, 1, 1)
-                .defaultAnswer(BDDMockito.CALLS_REAL_METHODS)
+        this.service = BDDMockito.mock(ExamFormPreparerServiceImpl.class, BDDMockito.withSettings()
+            .useConstructor(questionLoader, modifierService, 1, 1)
+            .defaultAnswer(BDDMockito.CALLS_REAL_METHODS)
         );
     }
 
@@ -49,9 +43,7 @@ public class ExamFormPreparerServiceImplTest {
     @Test
     public void shouldCallLoadMethodInLoader() throws LoadException {
         BDDMockito.given(questionLoader.load()).willReturn(questions);
-
         service.loadQuestions();
-
         BDDMockito.then(questionLoader).should().load();
     }
 
@@ -59,7 +51,6 @@ public class ExamFormPreparerServiceImplTest {
     @Test
     public void shouldCallModifyMethodInModifierService() {
         service.modifyQuestions(questions);
-
         BDDMockito.then(modifierService).should().modify(questions);
     }
 }

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import org.mockito.BDDMockito;
 
-import ru.otus.spring.exceptions.EvaluationException;
+import ru.otus.spring.exceptions.ExamEvaluationException;
 import ru.otus.spring.model.ExamAnswerForm;
 import ru.otus.spring.model.ExamForm;
 import ru.otus.spring.model.ExamResult;
@@ -19,7 +19,7 @@ import java.util.List;
 @DisplayName("Класс ExamEvaluationServiceImpl")
 public class ExamEvaluationServiceImplTest {
 
-    @DisplayName("выбрасывает EvaluationException когда количество ответов меньше количества вопросов")
+    @DisplayName("выбрасывает EvaluationException когда количество ответов и вопросов не совпадает")
     @Test
     public void shouldThrowEvaluationExceptionWhenAnswersCountLessThanQuestionsCount() {
         final ExamEvaluationServiceImpl service = BDDMockito.mock(ExamEvaluationServiceImpl.class, BDDMockito.CALLS_REAL_METHODS);
@@ -44,12 +44,12 @@ public class ExamEvaluationServiceImplTest {
         BDDMockito.given(examAnswerForm.getQuestionsForm()).willReturn(examForm);
         BDDMockito.given(examAnswerForm.getAnswers()).willReturn(filledAnswers);
 
-        Assertions.assertThatThrownBy(() -> service.evaluate(examAnswerForm)).isInstanceOf(EvaluationException.class);
+        Assertions.assertThatThrownBy(() -> service.evaluate(examAnswerForm)).isInstanceOf(ExamEvaluationException.class);
     }
 
     @DisplayName("корректно оценивает форму с ответами")
     @Test
-    public void shouldCorrectEvaluateAnswerForm() throws EvaluationException {
+    public void shouldCorrectEvaluateAnswerForm() throws ExamEvaluationException {
         final ExamEvaluationServiceImpl service = BDDMockito.mock(ExamEvaluationServiceImpl.class, BDDMockito.CALLS_REAL_METHODS);
 
         final List<Question> questions = Arrays.asList(

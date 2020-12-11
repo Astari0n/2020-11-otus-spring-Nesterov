@@ -6,6 +6,10 @@ public interface IOService {
 
     String read() throws IOServiceException;
 
+    String readNonEmpty() throws IOServiceException;
+
+    String readNonEmptyWithInfo(String printText, String errorMessage) throws IOServiceException;
+
     void print(String s) throws IOServiceException;
 
     void println(String s) throws IOServiceException;

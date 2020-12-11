@@ -2,18 +2,20 @@ package ru.otus.spring.services.exam;
 
 import org.springframework.stereotype.Service;
 
-import ru.otus.spring.exceptions.DisplayServiceException;
-import ru.otus.spring.exceptions.EvaluationException;
+import ru.otus.spring.exceptions.ExamEvaluationException;
+import ru.otus.spring.exceptions.ExamException;
 import ru.otus.spring.exceptions.ExamFormPrepareException;
-import ru.otus.spring.exceptions.InteractionException;
-import ru.otus.spring.exceptions.RegisterException;
+import ru.otus.spring.exceptions.ExamRegisterException;
+import ru.otus.spring.exceptions.ExamResultDisplayServiceException;
+import ru.otus.spring.exceptions.QuestionAnswerException;
 
 import ru.otus.spring.model.ExamAnswerForm;
 import ru.otus.spring.model.ExamForm;
 import ru.otus.spring.model.ExamResult;
 import ru.otus.spring.model.Question;
 import ru.otus.spring.model.Student;
-import ru.otus.spring.services.questions.QuestionsInteractionService;
+
+import ru.otus.spring.services.questions.QuestionAnswerService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +27,7 @@ public class Examiner {
 
     private final RegisterStudentOnExamService registerStudentOnExamService;
 
-    private final QuestionsInteractionService<String> questionsInteractionService;
+    private final QuestionAnswerService questionAnswerService;
 
     private final ExamEvaluationService examEvaluationService;
 
@@ -34,19 +36,18 @@ public class Examiner {
     public Examiner(
         final ExamFormPreparerService examFormPreparerService,
         final RegisterStudentOnExamService registerStudentOnExamService,
-        final QuestionsInteractionService<String> questionsInteractionService,
+        final QuestionAnswerService questionAnswerService,
         final ExamEvaluationService examEvaluationService,
         final ExamResultDisplayService examResultDisplayService
     ) {
         this.examFormPreparerService = examFormPreparerService;
         this.registerStudentOnExamService = registerStudentOnExamService;
-        this.questionsInteractionService = questionsInteractionService;
+        this.questionAnswerService = questionAnswerService;
         this.examEvaluationService = examEvaluationService;
         this.examResultDisplayService = examResultDisplayService;
     }
 
-    public void exam(
-    ) throws ExamFormPrepareException, RegisterException, EvaluationException, DisplayServiceException, InteractionException {
+    public void exam() throws ExamException {
         final ExamForm examForm = prepareExamForm();
         final Student student = prepareStudentToExam(examForm);
         final ExamAnswerForm examAnswerForm = processExam(student, examForm);
@@ -58,27 +59,27 @@ public class Examiner {
         return examFormPreparerService.prepareForm();
     }
 
-    protected Student prepareStudentToExam(final ExamForm examForm) throws RegisterException {
+    protected Student prepareStudentToExam(final ExamForm examForm) throws ExamRegisterException {
         return registerStudentOnExamService.register(examForm);
     }
 
-    protected ExamAnswerForm processExam(final Student student, final ExamForm examForm) throws InteractionException {
+    protected ExamAnswerForm processExam(final Student student, final ExamForm examForm) throws QuestionAnswerException {
         final List<Question> questions = examForm.getQuestions();
         final List<String> answers = new ArrayList<>(questions.size());
 
         for (final Question question : questions) {
-            final String answer = questionsInteractionService.interact(question);
+            final String answer = questionAnswerService.answer(question);
             answers.add(answer);
         }
 
         return new ExamAnswerForm(student, examForm, answers);
     }
 
-    protected ExamResult evaluateExamResult(final ExamAnswerForm examAnswerForm) throws EvaluationException {
+    protected ExamResult evaluateExamResult(final ExamAnswerForm examAnswerForm) throws ExamEvaluationException {
         return examEvaluationService.evaluate(examAnswerForm);
     }
 
-    protected void displayExamResult(final ExamResult examResult) throws DisplayServiceException {
+    protected void displayExamResult(final ExamResult examResult) throws ExamResultDisplayServiceException {
         examResultDisplayService.display(examResult);
     }
 }

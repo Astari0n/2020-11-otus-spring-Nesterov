@@ -8,21 +8,21 @@ import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 
 import ru.otus.spring.exceptions.IOServiceException;
-import ru.otus.spring.exceptions.InteractionException;
+import ru.otus.spring.exceptions.QuestionAnswerException;
 import ru.otus.spring.model.Question;
 import ru.otus.spring.services.io.IOService;
 
 @DisplayName("Класс QuestionsInteractionServiceImpl")
-public class QuestionsInteractionServiceImplTest {
+public class QuestionAnswerServiceImplTest {
 
     @DisplayName("выбрасывает InteractionException при попытке взаимодействовать с null вопросом")
     @Test
     public void shouldThrowInteractionExceptionWhenQuestionIsNull() {
-        final QuestionsInteractionServiceImpl service = BDDMockito.mock(QuestionsInteractionServiceImpl.class,
+        final QuestionAnswerServiceImpl service = BDDMockito.mock(QuestionAnswerServiceImpl.class,
             BDDMockito.CALLS_REAL_METHODS
         );
 
-        Assertions.assertThatThrownBy(() -> service.interact(null)).isInstanceOf(InteractionException.class);
+        Assertions.assertThatThrownBy(() -> service.answer(null)).isInstanceOf(QuestionAnswerException.class);
     }
 
     @DisplayName("выбрасывает InteractionException если IOService выбросил IOServiceException")
@@ -35,7 +35,7 @@ public class QuestionsInteractionServiceImplTest {
         BDDMockito.doThrow(IOServiceException.class).when(ioService).println(BDDMockito.anyString());
         BDDMockito.doThrow(IOServiceException.class).when(ioService).println();
 
-        final QuestionsInteractionServiceImpl service = BDDMockito.mock(QuestionsInteractionServiceImpl.class,
+        final QuestionAnswerServiceImpl service = BDDMockito.mock(QuestionAnswerServiceImpl.class,
             BDDMockito.withSettings()
             .useConstructor(ioService)
             .defaultAnswer(BDDMockito.CALLS_REAL_METHODS)
@@ -43,6 +43,6 @@ public class QuestionsInteractionServiceImplTest {
 
         final Question question = BDDMockito.mock(Question.class);
 
-        Assertions.assertThatThrownBy(() -> service.interact(question)).isInstanceOf(InteractionException.class);
+        Assertions.assertThatThrownBy(() -> service.answer(question)).isInstanceOf(QuestionAnswerException.class);
     }
 }

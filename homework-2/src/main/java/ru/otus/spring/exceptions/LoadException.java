@@ -5,7 +5,7 @@ public class LoadException extends Exception {
         super(errorMessage);
     }
 
-    public LoadException(final String message, final Throwable cause) {
-        super(message, cause);
+    public LoadException(final Throwable cause) {
+        super(cause);
     }
 }

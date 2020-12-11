@@ -1,9 +1,9 @@
 package ru.otus.spring.loaders;
 
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import ru.otus.spring.exceptions.LoadException;
+import ru.otus.spring.exceptions.ResourceReadException;
 import ru.otus.spring.model.Question;
 import ru.otus.spring.providers.ResourceProvider;
 
@@ -14,20 +14,26 @@ import java.util.List;
 import java.util.Scanner;
 
 @Component
-public class QuestionLoaderCsv implements QuestionLoader {
+public class QuestionLoaderCsv implements QuestionLoader, ResourceReader {
 
     private final ResourceProvider resourceProvider;
 
-    public QuestionLoaderCsv(
-        final ResourceProvider resourceProvider
-    ) {
+    public QuestionLoaderCsv(final ResourceProvider resourceProvider) {
         this.resourceProvider = resourceProvider;
     }
 
     @Override
     public List<Question> load() throws LoadException {
+        try {
+            return doLoad();
+        } catch (ResourceReadException e) {
+            throw new LoadException(e);
+        }
+    }
+
+    protected List<Question> doLoad() throws LoadException, ResourceReadException {
         final List<Question> questions = new ArrayList<>();
-        final List<String> csvStrings = readAllLinesInResource();
+        final List<String> csvStrings = readResource();
 
         for (int i = 0; i < csvStrings.size(); i++) {
             final String csvString = csvStrings.get(i);
@@ -46,17 +52,18 @@ public class QuestionLoaderCsv implements QuestionLoader {
         return questions;
     }
 
-    public List<String> readAllLinesInResource() throws LoadException {
-        final List<String> csvStrings = new ArrayList<>();
+    @Override
+    public List<String> readResource() throws ResourceReadException {
+        final List<String> fileStrings = new ArrayList<>();
 
         try (final Scanner scanner = new Scanner(resourceProvider.getResource().getInputStream())) {
             while (scanner.hasNextLine()) {
-                csvStrings.add(scanner.nextLine());
+                fileStrings.add(scanner.nextLine());
             }
         } catch (final IOException e) {
-            throw new LoadException("Ошибка обработки ресурса", e);
+            throw new ResourceReadException("Ошибка обработки ресурса", e);
         }
 
-        return csvStrings;
+        return fileStrings;
     }
 }

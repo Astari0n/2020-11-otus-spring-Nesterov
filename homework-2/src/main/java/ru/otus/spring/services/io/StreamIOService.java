@@ -21,6 +21,29 @@ public class StreamIOService implements IOService {
     }
 
     @Override
+    public String readNonEmpty() {
+        String result = read();
+
+        while (result.isEmpty()) {
+            result = read();
+        }
+        return result;
+    }
+
+    @Override
+    public String readNonEmptyWithInfo(final String printText, final String errorMessage) {
+        print(printText);
+        String result = read();
+
+        while (result.isEmpty()) {
+            println(errorMessage);
+            print(printText);
+            result = read();
+        }
+        return result;
+    }
+
+    @Override
     public void print(final String s) {
         printStream.print(s);
     }

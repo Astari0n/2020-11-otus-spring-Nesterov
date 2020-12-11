@@ -2,7 +2,7 @@ package ru.otus.spring.services.exam;
 
 import org.springframework.stereotype.Service;
 
-import ru.otus.spring.exceptions.DisplayServiceException;
+import ru.otus.spring.exceptions.ExamResultDisplayServiceException;
 import ru.otus.spring.exceptions.IOServiceException;
 
 import ru.otus.spring.model.ExamResult;
@@ -18,11 +18,11 @@ public class ExamResultDisplayServiceImpl implements ExamResultDisplayService {
     }
 
     @Override
-    public void display(final ExamResult examResult) throws DisplayServiceException {
+    public void display(final ExamResult examResult) throws ExamResultDisplayServiceException {
         try {
             doDisplay(examResult);
         } catch (final IOServiceException e) {
-            throw new DisplayServiceException(e);
+            throw new ExamResultDisplayServiceException(e);
         }
     }
 

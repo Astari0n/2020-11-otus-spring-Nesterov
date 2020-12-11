@@ -10,6 +10,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 
 import ru.otus.spring.exceptions.LoadException;
+import ru.otus.spring.exceptions.ResourceReadException;
 import ru.otus.spring.model.Question;
 import ru.otus.spring.providers.ResourceProvider;
 
@@ -39,7 +40,7 @@ public class QuestionLoaderCsvTest {
         final QuestionLoaderCsv loaderCsv = Mockito.mock(QuestionLoaderCsv.class,
             Mockito.withSettings().useConstructor(resourceProvider).defaultAnswer(Mockito.CALLS_REAL_METHODS));
 
-        Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(resourceList, loaderCsv.readAllLinesInResource()));
+        Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(resourceList, loaderCsv.readResource()));
     }
 
     @DisplayName("выбрасывает QuestionLoadException если при чтении из файла ресурса был выброшен IOException")
@@ -54,7 +55,7 @@ public class QuestionLoaderCsvTest {
         final QuestionLoaderCsv loaderCsv = Mockito.mock(QuestionLoaderCsv.class,
             Mockito.withSettings().useConstructor(resourceProvider).defaultAnswer(Mockito.CALLS_REAL_METHODS));
 
-        Assertions.assertThrows(LoadException.class, loaderCsv::readAllLinesInResource);
+        Assertions.assertThrows(ResourceReadException.class, loaderCsv::readResource);
     }
 
 

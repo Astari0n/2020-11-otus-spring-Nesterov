@@ -4,11 +4,11 @@ import java.util.List;
 
 public class ExamAnswerForm {
 
-    private Student student;
+    private final Student student;
 
-    private ExamForm questionsForm;
+    private final ExamForm questionsForm;
 
-    private List<String> answers;
+    private final List<String> answers;
 
     public ExamAnswerForm(final Student student, final ExamForm questionsForm, final List<String> answers) {
         this.student = student;
