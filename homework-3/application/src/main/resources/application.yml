@@ -1,0 +1,7 @@
+
+application:
+  locale: en
+
+examiner:
+  amount-of-questions-to-ask: 5
+  amount-of-correct-answers-to-pass-exam: 4
