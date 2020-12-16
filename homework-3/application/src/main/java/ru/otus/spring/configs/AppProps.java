@@ -13,4 +13,8 @@ public class AppProps {
     @Getter
     @Setter
     private Locale locale;
+
+    @Getter
+    @Setter
+    private String resourceFileNameTemplate;
 }

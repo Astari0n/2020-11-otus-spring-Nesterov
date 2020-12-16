@@ -7,16 +7,13 @@ import ru.otus.spring.exceptions.ExamResultDisplayServiceException;
 import ru.otus.spring.exceptions.IOServiceException;
 
 import ru.otus.spring.model.ExamResult;
-import ru.otus.spring.services.io.IOService;
-import ru.otus.spring.services.localization.MessageLocalizationService;
+import ru.otus.spring.services.io.MessageIOService;
 
 @Service
 @RequiredArgsConstructor
 public class ExamResultDisplayServiceImpl implements ExamResultDisplayService {
 
-    private final IOService io;
-
-    private final MessageLocalizationService localizationService;
+    private final MessageIOService io;
 
     @Override
     public void display(final ExamResult examResult) throws ExamResultDisplayServiceException {
@@ -29,17 +26,13 @@ public class ExamResultDisplayServiceImpl implements ExamResultDisplayService {
 
     protected void doDisplay(final ExamResult examResult) throws IOServiceException {
         io.println();
-        io.print(localizationService.getText("exam.result_display_message",
+        io.printlnMsg("exam.result_display_message",
             examResult.getStudent().getFirstName(),
             examResult.getStudent().getLastName(),
             examResult.getCorrectAnswersCount(),
             examResult.getQuestionsCount(),
-            String.format(
-                localizationService.getText("exam.result_display_percentage_format"),
-                examResult.getCompletionPercentage()
-            ),
+            String.format(io.readMsg("exam.result_display_percentage_format"), examResult.getCompletionPercentage()),
             examResult.getExamMark()
-        ));
-        io.println();
+        );
     }
 }

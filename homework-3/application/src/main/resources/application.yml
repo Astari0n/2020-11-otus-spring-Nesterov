@@ -1,6 +1,13 @@
 
 application:
   locale: en
+  resource-file-name-template: questions_%s.csv
+
+spring:
+  messages:
+    basename: /i18n/bundle
+    encoding: utf-8
+    fallback-to-system-locale: false
 
 examiner:
   amount-of-questions-to-ask: 5

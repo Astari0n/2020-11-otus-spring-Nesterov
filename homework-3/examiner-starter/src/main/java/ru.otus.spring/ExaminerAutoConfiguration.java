@@ -16,7 +16,6 @@ import ru.otus.spring.services.exam.ExamFormPreparerServiceImpl;
 import ru.otus.spring.services.exam.Examiner;
 import ru.otus.spring.services.io.IOService;
 import ru.otus.spring.services.io.StreamIOService;
-import ru.otus.spring.services.localization.MessageLocalizationService;
 import ru.otus.spring.services.questions.QuestionsModifierService;
 
 @Configuration
