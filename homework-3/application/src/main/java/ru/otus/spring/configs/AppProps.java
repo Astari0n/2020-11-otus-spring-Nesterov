@@ -1,8 +1,8 @@
 package ru.otus.spring.configs;
 
 import lombok.Getter;
-
 import lombok.Setter;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Locale;
@@ -14,7 +14,10 @@ public class AppProps {
     @Setter
     private Locale locale;
 
-    @Getter
     @Setter
     private String resourceFileNameTemplate;
+
+    public String getLocalizedResourceFileName() {
+        return String.format(resourceFileNameTemplate, locale);
+    }
 }

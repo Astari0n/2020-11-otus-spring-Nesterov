@@ -20,7 +20,7 @@ public class ExaminerResourceAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ResourceProvider csvResourceProvider() {
-        final String resourceFileName = String.format(appProps.getResourceFileNameTemplate(), appProps.getLocale());
+        final String resourceFileName = appProps.getLocalizedResourceFileName();
         final Resource resource = new ClassPathResource(resourceFileName);
         return new ResourceProvider(resource);
     }
