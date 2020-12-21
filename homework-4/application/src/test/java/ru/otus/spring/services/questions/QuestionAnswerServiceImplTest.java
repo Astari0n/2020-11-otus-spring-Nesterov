@@ -1,50 +1,65 @@
 package ru.otus.spring.services.questions;
 
-import org.assertj.core.api.Assertions;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import org.mockito.BDDMockito;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 import ru.otus.spring.exceptions.IOServiceException;
 import ru.otus.spring.exceptions.QuestionAnswerException;
 import ru.otus.spring.model.Question;
 import ru.otus.spring.services.io.IOService;
 import ru.otus.spring.services.localization.MessageLocalizationService;
 
+import static org.mockito.BDDMockito.doThrow;
+import static org.mockito.BDDMockito.anyString;
+import static org.mockito.BDDMockito.mock;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 @SpringBootTest
 @DisplayName("Класс QuestionsInteractionServiceImpl")
 public class QuestionAnswerServiceImplTest {
 
-    @MockBean
-    private MessageLocalizationService localizationService;
+    @Configuration
+    static class QuestionAnswerServiceImplTestConfig {
+
+        @MockBean
+        private MessageLocalizationService localizationService;
+
+        @Bean
+        public QuestionAnswerServiceImpl questionAnswerServiceImpl(final IOService ioService) {
+            return new QuestionAnswerServiceImpl(ioService, localizationService);
+        }
+    }
+
+    @Autowired
+    private QuestionAnswerServiceImpl questionAnswerService;
 
     @MockBean
     private IOService ioService;
 
-    @DisplayName("выбрасывает InteractionException при попытке взаимодействовать с null вопросом")
     @Test
+    @DisplayName("выбрасывает InteractionException при попытке взаимодействовать с null вопросом")
     public void shouldThrowInteractionExceptionWhenQuestionIsNull() {
-        final QuestionAnswerServiceImpl questionAnswerService = BDDMockito.mock(QuestionAnswerServiceImpl.class, BDDMockito.CALLS_REAL_METHODS);
-
-        Assertions.assertThatThrownBy(() -> questionAnswerService.answer(null)).isInstanceOf(QuestionAnswerException.class);
+        assertThatThrownBy(() -> questionAnswerService.answer(null)).isInstanceOf(QuestionAnswerException.class);
     }
 
-    @DisplayName("выбрасывает InteractionException если IOService выбросил IOServiceException")
     @Test
+    @DisplayName("выбрасывает InteractionException если IOService выбросил IOServiceException")
     public void shouldThrowInteractionExceptionIfIOServiceThrownIOServiceException() throws IOServiceException {
-        BDDMockito.doThrow(IOServiceException.class).when(ioService).read();
-        BDDMockito.doThrow(IOServiceException.class).when(ioService).print(BDDMockito.anyString());
-        BDDMockito.doThrow(IOServiceException.class).when(ioService).println(BDDMockito.anyString());
-        BDDMockito.doThrow(IOServiceException.class).when(ioService).println();
+        doThrow(IOServiceException.class).when(ioService).read();
+        doThrow(IOServiceException.class).when(ioService).print(anyString());
+        doThrow(IOServiceException.class).when(ioService).println(anyString());
+        doThrow(IOServiceException.class).when(ioService).println();
 
-        final QuestionAnswerServiceImpl questionAnswerService = new QuestionAnswerServiceImpl(ioService, localizationService);
+        final Question question = mock(Question.class);
 
-        final Question question = BDDMockito.mock(Question.class);
-
-        Assertions.assertThatThrownBy(() -> questionAnswerService.answer(question)).isInstanceOf(QuestionAnswerException.class);
+        assertThatThrownBy(() -> questionAnswerService.answer(question)).isInstanceOf(QuestionAnswerException.class);
     }
 }

@@ -1,13 +1,15 @@
 package ru.otus.spring.services.exam;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import org.mockito.BDDMockito;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 import ru.otus.spring.exceptions.IOServiceException;
 import ru.otus.spring.exceptions.ExamRegisterException;
 import ru.otus.spring.model.ExamForm;
@@ -15,36 +17,49 @@ import ru.otus.spring.model.Student;
 import ru.otus.spring.services.io.IOService;
 import ru.otus.spring.services.localization.MessageLocalizationService;
 
+import static org.mockito.BDDMockito.mock;
+import static org.mockito.BDDMockito.doReturn;
+import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.anyString;
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringBootTest
 @DisplayName("Класс RegisterStudentOnExamServiceImpl")
 public class RegisterStudentOnExamServiceImplTest {
 
+    @Configuration
+    static class RegisterStudentOnExamServiceImplTestConfig {
+        @Bean
+        public RegisterStudentOnExamServiceImpl registerStudentOnExamServiceImpl(
+            final IOService ioService,
+            final MessageLocalizationService localizationService
+        ) {
+            return new RegisterStudentOnExamServiceImpl(ioService, localizationService);
+        }
+    }
+
+    @Autowired
+    private RegisterStudentOnExamServiceImpl registerService;
+
     @MockBean
     private IOService ioService;
 
-    @DisplayName("корректно регистрирует студента с его именем и фамилией")
+    @MockBean
+    private MessageLocalizationService localizationService;
+
     @Test
+    @DisplayName("корректно регистрирует студента с его именем и фамилией")
     public void shouldCorrectRegisterStudentOnExam() throws ExamRegisterException, IOServiceException {
+        final ExamForm examForm = mock(ExamForm.class);
 
-        final MessageLocalizationService localizationService = BDDMockito.mock(MessageLocalizationService.class);
-        BDDMockito.doReturn("non important text").when(localizationService).getText(BDDMockito.anyString(), BDDMockito.any());
+        doReturn("non important text").when(localizationService).getText(anyString(), any());
 
-        final RegisterStudentOnExamServiceImpl registerService = BDDMockito.mock(RegisterStudentOnExamServiceImpl.class,
-            BDDMockito.withSettings()
-            .useConstructor(ioService, localizationService)
-            .defaultAnswer(BDDMockito.CALLS_REAL_METHODS)
-        );
-
-        final ExamForm examForm = BDDMockito.mock(ExamForm.class);
-
-        final String firstName = "Ivan";
-        BDDMockito.doReturn(firstName).when(ioService).readNonEmptyWithInfo(BDDMockito.anyString(), BDDMockito.anyString());
+        doReturn("Ivan").when(ioService).readNonEmptyWithInfo(anyString(), anyString());
         Student student = registerService.register(examForm);
-        Assertions.assertThat(student.getFirstName()).isEqualTo(firstName);
+        assertThat(student.getFirstName()).isEqualTo("Ivan");
 
-        final String lastName = "Petrovich";
-        BDDMockito.doReturn(lastName).when(ioService).readNonEmptyWithInfo(BDDMockito.anyString(), BDDMockito.anyString());
+        doReturn("Petrovich").when(ioService).readNonEmptyWithInfo(anyString(), anyString());
         student = registerService.register(examForm);
-        Assertions.assertThat(student.getLastName()).isEqualTo(lastName);
+        assertThat(student.getLastName()).isEqualTo("Petrovich");
     }
 }

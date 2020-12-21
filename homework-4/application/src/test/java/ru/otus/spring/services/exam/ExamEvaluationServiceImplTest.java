@@ -1,14 +1,15 @@
 package ru.otus.spring.services.exam;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import org.mockito.BDDMockito;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import ru.otus.spring.exceptions.ExamEvaluationException;
 import ru.otus.spring.model.ExamAnswerForm;
@@ -21,27 +22,40 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.BDDMockito.mock;
+import static org.mockito.BDDMockito.doReturn;
+import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.anyString;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 @SpringBootTest
 @DisplayName("Класс ExamEvaluationServiceImpl")
+@SuppressWarnings("ALL")
 public class ExamEvaluationServiceImplTest {
+
+    @Configuration
+    static class ExamEvaluationServiceImplTestConfig {
+        @Bean
+        public ExamEvaluationServiceImpl examEvaluationServiceImpl(final MessageLocalizationService localizationService) {
+            return new ExamEvaluationServiceImpl(localizationService);
+        }
+    }
+
+    @Autowired
+    private ExamEvaluationServiceImpl service;
 
     @MockBean
     private MessageLocalizationService localizationService;
 
-    private ExamEvaluationServiceImpl service;
-
     @BeforeEach
     public void beforeEach() {
-        BDDMockito.doReturn("exam result").when(localizationService).getText(BDDMockito.anyString(), BDDMockito.any());
-
-        service = BDDMockito.mock(ExamEvaluationServiceImpl.class, BDDMockito.withSettings()
-            .useConstructor(localizationService)
-            .defaultAnswer(BDDMockito.CALLS_REAL_METHODS)
-        );
+        doReturn("exam result").when(localizationService).getText(anyString(), any());
     }
 
-    @DisplayName("выбрасывает EvaluationException когда количество ответов и вопросов не совпадает")
     @Test
+    @DisplayName("выбрасывает EvaluationException когда количество ответов и вопросов не совпадает")
     public void shouldThrowEvaluationExceptionWhenAnswersCountLessThanQuestionsCount() {
         final List<String> questionsAnswers = Collections.singletonList("questionAnswer1");
 
@@ -56,18 +70,19 @@ public class ExamEvaluationServiceImplTest {
             "answer2"
         );
 
-        final ExamForm examForm = BDDMockito.mock(ExamForm.class);
-        BDDMockito.given(examForm.getQuestions()).willReturn(questions);
+        final ExamForm examForm = mock(ExamForm.class);
+        final ExamAnswerForm examAnswerForm = mock(ExamAnswerForm.class);
 
-        final ExamAnswerForm examAnswerForm = BDDMockito.mock(ExamAnswerForm.class);
-        BDDMockito.given(examAnswerForm.getQuestionsForm()).willReturn(examForm);
-        BDDMockito.given(examAnswerForm.getAnswers()).willReturn(filledAnswers);
+        doReturn(questions).when(examForm).getQuestions();
 
-        Assertions.assertThatThrownBy(() -> service.evaluate(examAnswerForm)).isInstanceOf(ExamEvaluationException.class);
+        doReturn(examForm).when(examAnswerForm).getQuestionsForm();
+        doReturn(filledAnswers).when(examAnswerForm).getAnswers();
+
+        assertThatThrownBy(() -> service.evaluate(examAnswerForm)).isInstanceOf(ExamEvaluationException.class);
     }
 
-    @DisplayName("корректно оценивает форму с ответами")
     @Test
+    @DisplayName("корректно оценивает форму с ответами")
     public void shouldCorrectEvaluateAnswerForm() throws ExamEvaluationException {
         final List<Question> questions = Arrays.asList(
             new Question("question1", Arrays.asList("answer1_q1", "answer2_q1", "answer3_q1")),
@@ -83,20 +98,21 @@ public class ExamEvaluationServiceImplTest {
             "answer2_q4"
         );
 
-        final ExamForm examForm = BDDMockito.mock(ExamForm.class);
-        BDDMockito.given(examForm.getQuestions()).willReturn(questions);
-        BDDMockito.given(examForm.getAmountOfCorrectAnswersToPassExam()).willReturn(2);
+        final ExamForm examForm = mock(ExamForm.class);
+        final ExamAnswerForm examAnswerForm = mock(ExamAnswerForm.class);
 
-        final ExamAnswerForm examAnswerForm = BDDMockito.mock(ExamAnswerForm.class);
-        BDDMockito.given(examAnswerForm.getQuestionsForm()).willReturn(examForm);
-        BDDMockito.given(examAnswerForm.getAnswers()).willReturn(filledAnswers);
+        doReturn(questions).when(examForm).getQuestions();
+        doReturn(2).when(examForm).getAmountOfCorrectAnswersToPassExam();
 
-        BDDMockito.doReturn("success result").when(localizationService).getText(BDDMockito.anyString(), BDDMockito.any());
+        doReturn(examForm).when(examAnswerForm).getQuestionsForm();
+        doReturn(filledAnswers).when(examAnswerForm).getAnswers();
+
+        doReturn("success result").when(localizationService).getText(anyString(), any());
 
         final ExamResult examResult = service.evaluate(examAnswerForm);
 
-        Assertions.assertThat(examResult.getCorrectAnswersCount()).isEqualTo(2);
-        Assertions.assertThat(examResult.getCompletionPercentage()).isEqualTo(50.0f);
-        Assertions.assertThat(examResult.getExamMark()).isEqualTo("success result");
+        assertThat(examResult.getCorrectAnswersCount()).isEqualTo(2);
+        assertThat(examResult.getCompletionPercentage()).isEqualTo(50.0f);
+        assertThat(examResult.getExamMark()).isEqualTo("success result");
     }
 }
