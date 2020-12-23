@@ -1,0 +1,23 @@
+
+application:
+  locale: en
+  resource-file-name-template: questions_%s.csv
+  super-user-password: root
+
+spring:
+  messages:
+    basename: i18n/bundle
+    encoding: utf-8
+    fallback-to-system-locale: false
+
+  shell:
+    interactive:
+      enabled: false
+
+logging:
+  level:
+    root: ERROR
+
+examiner:
+  amount-of-questions-to-ask: 5
+  amount-of-correct-answers-to-pass-exam: 4
