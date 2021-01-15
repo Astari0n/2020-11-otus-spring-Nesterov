@@ -11,9 +11,7 @@ import org.springframework.stereotype.Repository;
 import ru.otus.spring.dao.DaoBooks;
 import ru.otus.spring.dao.mappers.MapperBook;
 
-import ru.otus.spring.model.Author;
 import ru.otus.spring.model.Book;
-import ru.otus.spring.model.Genre;
 
 import java.util.List;
 import java.util.Map;
@@ -28,32 +26,58 @@ public class DaoBooksNamedJdbc implements DaoBooks {
     private final MapperBook mapperBook;
 
     @Override
-    public Book create(final Author author, final Genre genre, final String title) {
+    public long insert(final Book book) {
         final var holder = new GeneratedKeyHolder();
 
         jdbc.update(
             "insert into " +
-                "public.books (author_id, genre_id, title) " +
+                "books (author_id, genre_id, title) " +
                 "values (:authorId, :genreId, :title)",
             new MapSqlParameterSource()
-                .addValue("authorId", author.getId())
-                .addValue("genreId", genre.getId())
-                .addValue("title", title),
+                .addValue("authorId", book.getAuthor().getId())
+                .addValue("genreId", book.getGenre().getId())
+                .addValue("title", book.getTitle()),
             holder
         );
 
-        return new Book((Long) Objects.requireNonNull(holder.getKeys()).get("book_id"), author, genre, title);
+        return (Long) Objects.requireNonNull(holder.getKeys()).get("book_id");
     }
 
     @Override
-    public Book getById(final long bookId) {
+    public Book getByBookId(final long bookId) {
         return jdbc.queryForObject(
             "select * " +
-                "from public.books " +
-                "left join public.authors using (author_id) " +
-                "left join public.genres using (genre_id) " +
-                "where book_id = :bookId",
+                "from books b " +
+                "left join authors a on a.author_id = b.author_id " +
+                "left join genres g on g.genre_id = b.genre_id " +
+                "where b.book_id = :bookId",
             Map.of("bookId", bookId),
+            mapperBook
+        );
+    }
+
+    @Override
+    public List<Book> getByAuthorId(final long authorId) {
+        return jdbc.query(
+            "select * " +
+                "from books b " +
+                "left join authors a on a.author_id = b.author_id " +
+                "left join genres g on g.genre_id = b.genre_id " +
+                "where b.author_id = :authorId",
+            Map.of("authorId", authorId),
+            mapperBook
+        );
+    }
+
+    @Override
+    public List<Book> getByGenreId(final long genreId) {
+        return jdbc.query(
+            "select * " +
+                "from books b " +
+                "left join authors a on a.author_id = b.author_id " +
+                "left join genres g on g.genre_id = b.genre_id " +
+                "where b.genre_id = :genreId",
+            Map.of("genreId", genreId),
             mapperBook
         );
     }
@@ -62,9 +86,9 @@ public class DaoBooksNamedJdbc implements DaoBooks {
     public List<Book> getAll() {
         return jdbc.query(
             "select * " +
-                "from public.books " +
-                "left join public.authors using (author_id) " +
-                "left join public.genres using (genre_id) ",
+                "from books b " +
+                "left join authors a on a.author_id = b.author_id " +
+                "left join genres g on g.genre_id = b.genre_id ",
             mapperBook
         );
     }
@@ -72,7 +96,7 @@ public class DaoBooksNamedJdbc implements DaoBooks {
     @Override
     public int update(final Book book) {
         return jdbc.update(
-            "update public.books set " +
+            "update books set " +
                 "author_id = :authorId, " +
                 "genre_id = :genreId, " +
                 "title = :title " +
@@ -89,7 +113,7 @@ public class DaoBooksNamedJdbc implements DaoBooks {
     @Override
     public int delete(final Book book) {
         return jdbc.update(
-            "delete from public.books " +
+            "delete from books " +
                 "where book_id = :bookId",
             Map.of("bookId", book.getId())
         );

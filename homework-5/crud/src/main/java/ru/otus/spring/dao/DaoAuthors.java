@@ -5,7 +5,7 @@ import ru.otus.spring.model.Author;
 import java.util.List;
 
 public interface DaoAuthors {
-    Author create(String authorName);
+    long insert(Author author);
 
     Author getById(long authorId);
 

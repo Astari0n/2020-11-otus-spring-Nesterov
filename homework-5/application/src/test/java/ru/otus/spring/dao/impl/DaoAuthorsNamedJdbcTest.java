@@ -4,12 +4,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 
 import org.springframework.context.annotation.Import;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+
 import ru.otus.spring.dao.DaoAuthors;
 import ru.otus.spring.dao.mappers.MapperAuthor;
 import ru.otus.spring.model.Author;
@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @JdbcTest
 @DisplayName("Класс DaoAuthorsNamedJdbc")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({ DaoAuthorsNamedJdbc.class, MapperAuthor.class })
 class DaoAuthorsNamedJdbcTest {
 
@@ -29,11 +28,16 @@ class DaoAuthorsNamedJdbcTest {
     private DaoAuthors daoAuthors;
 
     @Test
-    @DisplayName("корректно создаёт автора")
+    @DisplayName("корректно добавляет автора в базу")
     void shouldCorrectCreateAuthor() {
-        var expected = new Author(0, "test name");
-        var actual = daoAuthors.create(expected.getName());
-        assertThat(actual).usingRecursiveComparison().ignoringFields("id").isEqualTo(expected);
+        var expected = new Author("test name");
+
+        var id = daoAuthors.insert(expected);
+        expected.setId(id);
+
+        var actual = daoAuthors.getById(id);
+
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test

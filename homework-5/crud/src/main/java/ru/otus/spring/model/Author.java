@@ -8,11 +8,16 @@ import lombok.ToString;
 public class Author {
 
     @Getter
-    private final long id;
+    @Setter
+    private long id;
 
     @Getter
     @Setter
     private String name;
+
+    public Author(final String name) {
+        this.name = name;
+    }
 
     public Author(final long id, final String name) {
         this.id = id;

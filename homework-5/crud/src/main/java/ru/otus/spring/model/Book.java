@@ -8,7 +8,8 @@ import lombok.ToString;
 public class Book {
 
     @Getter
-    private final long id;
+    @Setter
+    private long id;
 
     @Getter
     @Setter
@@ -21,6 +22,12 @@ public class Book {
     @Getter
     @Setter
     private String title;
+
+    public Book(final Author author, final Genre genre, final String title) {
+        this.author = author;
+        this.genre = genre;
+        this.title = title;
+    }
 
     public Book(final long id, final Author author, final Genre genre, final String title) {
         this.id = id;

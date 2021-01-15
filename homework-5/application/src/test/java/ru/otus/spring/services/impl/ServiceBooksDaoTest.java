@@ -4,10 +4,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import ru.otus.spring.dao.DaoBooks;
@@ -20,16 +18,12 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.when;
 
-@JdbcTest
+@SpringBootTest
 @DisplayName("Класс ServiceBooksDao")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({ ServiceBooksDao.class })
 class ServiceBooksDaoTest {
 
     @MockBean
@@ -41,14 +35,12 @@ class ServiceBooksDaoTest {
     @Test
     @DisplayName("должен создавать книгу через дао")
     void shouldCreateBookUsingDao() {
-        var author = any(Author.class);
-        var genre = any(Genre.class);
-        var title = anyString();
+        var author = new Author(1, "first author");
+        var genre = new Genre(1, "test genre");
+        var title = "test title";
 
         var expected = serviceBooksDao.createBook(author, genre, title);
-        var actual = then(daoBooks).should().create(author, genre, title);
-
-        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+        then(daoBooks).should().insert(expected);
     }
 
     @Test
@@ -59,11 +51,11 @@ class ServiceBooksDaoTest {
 
         var expected = new Book(1, author, genre, "test title");
 
-        when(daoBooks.getById(anyLong())).thenReturn(expected);
+        when(daoBooks.getByBookId(anyLong())).thenReturn(expected);
 
         var actual = serviceBooksDao.findBookByBookId(expected.getId());
 
-        then(daoBooks).should().getById(expected.getId());
+        then(daoBooks).should().getByBookId(expected.getId());
 
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
@@ -108,7 +100,7 @@ class ServiceBooksDaoTest {
         var genre = new Genre(1, "test genre");
         var book = new Book(1, author, genre, "test title");
 
-        when(daoBooks.getById(anyLong())).thenThrow(EmptyResultDataAccessException.class);
+        when(daoBooks.getByBookId(anyLong())).thenThrow(EmptyResultDataAccessException.class);
 
         serviceBooksDao.deleteBook(book);
         then(daoBooks).should().delete(book);

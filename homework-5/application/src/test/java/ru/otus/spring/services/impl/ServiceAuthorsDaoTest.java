@@ -4,14 +4,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import ru.otus.spring.dao.DaoAuthors;
+import ru.otus.spring.exception.DeletionException;
 import ru.otus.spring.model.Author;
 
 import java.util.List;
@@ -24,10 +23,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.when;
 
-@JdbcTest
-@DisplayName("Класс AuthorsServiceDao")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({ ServiceAuthorsDao.class })
+@SpringBootTest
+@DisplayName("Класс ServiceAuthorsDao")
 class ServiceAuthorsDaoTest {
 
     @MockBean
@@ -41,9 +38,7 @@ class ServiceAuthorsDaoTest {
     void shouldCreateAuthorUsingDao() {
         var authorName = anyString();
         var expected = serviceAuthorsDao.createAuthor(authorName);
-        var actual = then(daoAuthors).should().create(authorName);
-
-        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+        then(daoAuthors).should().insert(expected);
     }
 
     @Test
@@ -87,8 +82,8 @@ class ServiceAuthorsDaoTest {
 
     @Test
     @DisplayName("должен удалять автора через дао")
-    void shouldDeleteAuthorUsingDao() {
-        var author = new Author(1, "test name");
+    void shouldDeleteAuthorUsingDao() throws DeletionException {
+        var author = new Author(3, "Free Author without books");
         when(daoAuthors.getById(anyLong())).thenThrow(EmptyResultDataAccessException.class);
 
         serviceAuthorsDao.deleteAuthor(author);

@@ -4,14 +4,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import ru.otus.spring.dao.DaoGenres;
+import ru.otus.spring.exception.DeletionException;
 import ru.otus.spring.model.Genre;
 
 import java.util.List;
@@ -24,10 +23,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.when;
 
-@JdbcTest
+@SpringBootTest
 @DisplayName("Класс ServiceGenresDao")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({ ServiceGenresDao.class })
 class ServiceGenresDaoTest {
 
     @MockBean
@@ -41,9 +38,7 @@ class ServiceGenresDaoTest {
     void shouldCreateGenreUsingDao() {
         var genreName = anyString();
         var expected = serviceGenresDao.createGenre(genreName);
-        var actual = then(daoGenres).should().create(genreName);
-
-        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+        then(daoGenres).should().insert(expected);
     }
 
     @Test
@@ -87,8 +82,8 @@ class ServiceGenresDaoTest {
 
     @Test
     @DisplayName("должен удалять жанр через дао")
-    void shouldDeleteGenreUsingDao() {
-        var genre = new Genre(1, "test name");
+    void shouldDeleteGenreUsingDao() throws DeletionException {
+        var genre = new Genre(3, "Free Genre without books");
         when(daoGenres.getById(anyLong())).thenThrow(EmptyResultDataAccessException.class);
 
         serviceGenresDao.deleteGenre(genre);

@@ -4,15 +4,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+
 import ru.otus.spring.dao.DaoBooks;
 import ru.otus.spring.dao.mappers.MapperAuthor;
 import ru.otus.spring.dao.mappers.MapperBook;
 import ru.otus.spring.dao.mappers.MapperGenre;
+
 import ru.otus.spring.model.Author;
 import ru.otus.spring.model.Book;
 import ru.otus.spring.model.Genre;
@@ -24,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @JdbcTest
 @DisplayName("Класс DaoBooksNamedJdbc")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({ DaoBooksNamedJdbc.class, MapperBook.class, MapperAuthor.class, MapperGenre.class })
 class DaoBooksNamedJdbcTest {
 
@@ -34,14 +34,18 @@ class DaoBooksNamedJdbcTest {
     @Test
     @DisplayName("корректно создаёт книгу")
     void shouldCorrectCreateBook() {
-        var author = new Author(1, "test author name");
-        var genre = new Genre(1, "test genre name");
+        var author = new Author(1, "Ray Bradbury");
+        var genre = new Genre(1, "Novel");
         var title = "test book title";
 
-        var expected = new Book(0, author, genre, title);
-        var actual = daoBooks.create(author, genre, title);
+        var expected = new Book(author, genre, title);
 
-        assertThat(actual).usingRecursiveComparison().ignoringFields("id").isEqualTo(expected);
+        var id = daoBooks.insert(expected);
+        expected.setId(id);
+
+        var actual = daoBooks.getByBookId(id);
+
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test
@@ -51,7 +55,7 @@ class DaoBooksNamedJdbcTest {
         var genre = new Genre(2, "Fantasy Novel");
 
         var expected = new Book(2, author, genre, "Harry Potter");
-        var actual = daoBooks.getById(expected.getId());
+        var actual = daoBooks.getByBookId(expected.getId());
 
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
@@ -79,7 +83,7 @@ class DaoBooksNamedJdbcTest {
     @Test
     @DisplayName("корректно обновляет книгу в базе")
     void shouldCorrectUpdateBook() {
-        var expected = daoBooks.getById(1);
+        var expected = daoBooks.getByBookId(1);
 
         expected.setTitle("updated title");
         expected.setAuthor(new Author(3, "Free Author without books"));
@@ -87,7 +91,7 @@ class DaoBooksNamedJdbcTest {
 
         daoBooks.update(expected);
 
-        var actual = daoBooks.getById(1);
+        var actual = daoBooks.getByBookId(1);
 
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
@@ -95,10 +99,10 @@ class DaoBooksNamedJdbcTest {
     @Test
     @DisplayName("корректно удаляет жанр из базы")
     void shouldCorrectDeleteBook() {
-        var expected = daoBooks.getById(1);
+        var expected = daoBooks.getByBookId(1);
 
         daoBooks.delete(expected);
 
-        assertThatThrownBy(() -> daoBooks.getById(expected.getId())).isInstanceOf(EmptyResultDataAccessException.class);
+        assertThatThrownBy(() -> daoBooks.getByBookId(expected.getId())).isInstanceOf(EmptyResultDataAccessException.class);
     }
 }

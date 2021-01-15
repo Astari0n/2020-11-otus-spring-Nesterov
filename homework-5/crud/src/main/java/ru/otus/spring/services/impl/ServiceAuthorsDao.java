@@ -5,20 +5,31 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import ru.otus.spring.dao.DaoAuthors;
+import ru.otus.spring.exception.DeletionException;
 import ru.otus.spring.model.Author;
-import ru.otus.spring.services.AuthorsService;
+import ru.otus.spring.model.Book;
+import ru.otus.spring.services.ServiceAuthors;
+import ru.otus.spring.services.ServiceBooks;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ServiceAuthorsDao implements AuthorsService {
+public class ServiceAuthorsDao implements ServiceAuthors {
 
     private final DaoAuthors daoAuthors;
 
+    private final ServiceBooks serviceBooks;
+
     @Override
     public Author createAuthor(final String authorName) {
-        return daoAuthors.create(authorName);
+        final var author = new Author(authorName);
+
+        long authorId = daoAuthors.insert(author);
+        author.setId(authorId);
+
+        return author;
     }
 
     @Override
@@ -38,7 +49,17 @@ public class ServiceAuthorsDao implements AuthorsService {
     }
 
     @Override
-    public int deleteAuthor(final Author author) {
+    public int deleteAuthor(final Author author) throws DeletionException {
+        final var books = serviceBooks.findBookByAuthorId(author);
+
+        if (!books.isEmpty()) {
+            throw new DeletionException(String.format(
+                "there are books [%s] with authorId %d",
+                books.stream().map(b -> String.valueOf(b.getId())).collect(Collectors.joining(",")),
+                author.getId())
+            );
+        }
+
         return daoAuthors.delete(author);
     }
 }

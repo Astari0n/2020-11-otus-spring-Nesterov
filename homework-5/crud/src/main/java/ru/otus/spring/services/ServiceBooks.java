@@ -6,10 +6,14 @@ import ru.otus.spring.model.Genre;
 
 import java.util.List;
 
-public interface BooksService {
+public interface ServiceBooks {
     Book createBook(Author author, Genre genre, String title);
 
     Book findBookByBookId(long bookId);
+
+    List<Book> findBookByAuthorId(Author author);
+
+    List<Book> findBookByGenreId(Genre genre);
 
     int changeBookAuthor(Book book, Author newAuthor);
 

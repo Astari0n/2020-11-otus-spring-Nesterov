@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
 
 import org.springframework.stereotype.Component;
+
 import ru.otus.spring.model.Author;
 import ru.otus.spring.model.Book;
 import ru.otus.spring.model.Genre;
@@ -24,6 +25,10 @@ public class MapperBook implements RowMapper<Book> {
     public Book mapRow(final ResultSet rs, final int rowNum) throws SQLException {
         final Author author = mapperAuthor.mapRow(rs, rowNum);
         final Genre genre = mapperGenre.mapRow(rs, rowNum);
-        return new Book(rs.getLong("book_id"), author, genre, rs.getString("title"));
+
+        final var book = new Book(author, genre, rs.getString("title"));
+        book.setId(rs.getLong("book_id"));
+
+        return book;
     }
 }

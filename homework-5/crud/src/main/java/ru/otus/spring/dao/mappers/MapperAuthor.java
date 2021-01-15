@@ -12,6 +12,9 @@ import java.sql.SQLException;
 public class MapperAuthor implements RowMapper<Author> {
     @Override
     public Author mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-        return new Author(rs.getLong("author_id"), rs.getString("author_name"));
+        final var author = new Author(rs.getString("author_name"));
+        author.setId(rs.getLong("author_id"));
+
+        return author;
     }
 }

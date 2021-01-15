@@ -25,26 +25,26 @@ public class DaoAuthorsNamedJdbc implements DaoAuthors {
     private final MapperAuthor mapperAuthor;
 
     @Override
-    public Author create(final String authorName) {
+    public long insert(final Author author) {
         final var holder = new GeneratedKeyHolder();
 
         jdbc.update(
             "insert into " +
-                "public.authors (author_name) " +
+                "authors (author_name) " +
                 "values (:authorName)",
             new MapSqlParameterSource()
-                .addValue("authorName", authorName),
+                .addValue("authorName", author.getName()),
             holder
         );
 
-        return new Author((Long) Objects.requireNonNull(holder.getKeys()).get("author_id"), authorName);
+        return (Long) Objects.requireNonNull(holder.getKeys()).get("author_id");
     }
 
     @Override
     public Author getById(final long authorId) {
         return jdbc.queryForObject(
             "select * " +
-                "from public.authors " +
+                "from authors " +
                 "where author_id = :authorId",
             Map.of("authorId", authorId),
             mapperAuthor
@@ -53,13 +53,13 @@ public class DaoAuthorsNamedJdbc implements DaoAuthors {
 
     @Override
     public List<Author> getAll() {
-        return jdbc.query("select * from public.authors", mapperAuthor);
+        return jdbc.query("select * from authors", mapperAuthor);
     }
 
     @Override
     public int update(final Author author) {
         return jdbc.update(
-            "update public.authors set " +
+            "update authors set " +
                 "author_name = :authorName " +
                 "where author_id = :authorId",
             Map.of(
@@ -72,7 +72,7 @@ public class DaoAuthorsNamedJdbc implements DaoAuthors {
     @Override
     public int delete(final Author author) {
         return jdbc.update(
-            "delete from public.authors " +
+            "delete from authors " +
             "where author_id = :authorId",
             Map.of("authorId", author.getId())
         );

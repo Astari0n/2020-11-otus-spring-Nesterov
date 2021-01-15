@@ -4,11 +4,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+
 import ru.otus.spring.dao.DaoGenres;
 import ru.otus.spring.dao.mappers.MapperGenre;
 import ru.otus.spring.model.Author;
@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @JdbcTest
 @DisplayName("Класс DaoGenresNamedJdbc")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({ DaoGenresNamedJdbc.class, MapperGenre.class })
 class DaoGenresNamedJdbcTest {
 
@@ -31,9 +30,14 @@ class DaoGenresNamedJdbcTest {
     @Test
     @DisplayName("корректно создаёт жанр")
     void shouldCorrectCreateGenre() {
-        var expected = new Genre(0, "test genre name");
-        var actual = daoGenres.create(expected.getName());
-        assertThat(actual).usingRecursiveComparison().ignoringFields("id").isEqualTo(expected);
+        var expected = new Genre("test genre name");
+
+        var id = daoGenres.insert(expected);
+        expected.setId(id);
+
+        var actual = daoGenres.getById(id);
+
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test

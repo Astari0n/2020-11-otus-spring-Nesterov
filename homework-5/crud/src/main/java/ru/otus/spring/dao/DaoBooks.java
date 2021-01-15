@@ -1,15 +1,17 @@
 package ru.otus.spring.dao;
 
-import ru.otus.spring.model.Author;
 import ru.otus.spring.model.Book;
-import ru.otus.spring.model.Genre;
 
 import java.util.List;
 
 public interface DaoBooks {
-    Book create(Author author, Genre genre, String title);
+    long insert(Book book);
 
-    Book getById(long bookId);
+    Book getByBookId(long bookId);
+
+    List<Book> getByAuthorId(long authorId);
+
+    List<Book> getByGenreId(long genreId);
 
     List<Book> getAll();
 
