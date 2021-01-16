@@ -1,18 +1,18 @@
-drop table if exists books;
-drop table if exists authors;
-drop table if exists genres;
+drop table if exists public.books;
+drop table if exists public.authors;
+drop table if exists public.genres;
 
-create table authors (
+create table public.authors (
     author_id bigserial not null primary key,
     author_name varchar(255) not null
 );
 
-create table genres (
+create table public.genres (
     genre_id bigserial not null primary key,
     genre_name varchar(255) not null
 );
 
-create table books (
+create table public.books (
     book_id bigserial not null primary key,
     author_id bigint not null references authors (author_id),
     genre_id bigint not null references genres (genre_id),

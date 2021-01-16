@@ -1,7 +1,6 @@
 spring:
   datasource:
     initialization-mode: always
-    schema: test-schema.sql
     data: test-data.sql
 
     url: jdbc:h2:mem:testdb

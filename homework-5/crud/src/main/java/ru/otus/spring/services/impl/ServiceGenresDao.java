@@ -2,16 +2,17 @@ package ru.otus.spring.services.impl;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import ru.otus.spring.dao.DaoGenres;
-import ru.otus.spring.exception.DeletionException;
+import ru.otus.spring.exception.ServiceException;
 import ru.otus.spring.model.Genre;
 import ru.otus.spring.services.ServiceBooks;
 import ru.otus.spring.services.ServiceGenres;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,24 +23,37 @@ public class ServiceGenresDao implements ServiceGenres {
     private final ServiceBooks serviceBooks;
 
     @Override
-    public Genre createGenre(final String genreName) {
-        final var genre = new Genre(genreName);
+    public Genre createGenre(final String genreName) throws ServiceException {
+        try {
+            final var genre = new Genre(genreName);
+            long genreId = daoGenres.insert(genre);
+            genre.setId(genreId);
 
-        long genreId = daoGenres.insert(genre);
-        genre.setId(genreId);
-
-        return genre;
+            return genre;
+        } catch (final DataAccessException e) {
+            throw new ServiceException(e);
+        }
     }
 
     @Override
-    public int renameGenre(final Genre genre, final String newGenreName) {
-        genre.setName(newGenreName);
-        return daoGenres.update(genre);
+    public int renameGenre(final Genre genre, final String newGenreName) throws ServiceException {
+        try {
+            genre.setName(newGenreName);
+            return daoGenres.update(genre);
+        } catch (final DataAccessException e) {
+            throw new ServiceException(e);
+        }
     }
 
     @Override
-    public Genre findGenreByGenreId(final long genreId) {
-        return daoGenres.getById(genreId);
+    public Genre findGenreByGenreId(final long genreId) throws ServiceException {
+        try {
+            return daoGenres.getById(genreId);
+        } catch (final EmptyResultDataAccessException e) {
+            throw new ServiceException("Genre not found with genreId " + genreId, e);
+        } catch (final DataAccessException e) {
+            throw new ServiceException(e);
+        }
     }
 
     @Override
@@ -48,17 +62,17 @@ public class ServiceGenresDao implements ServiceGenres {
     }
 
     @Override
-    public int deleteGenre(final Genre genre) throws DeletionException {
-        final var books = serviceBooks.findBookByGenreId(genre);
+    public int deleteGenre(final Genre genre) throws ServiceException {
+        final var booksWithGenre = serviceBooks.countBooksWithGenre(genre);
 
-        if (!books.isEmpty()) {
-            throw new DeletionException(String.format(
-                "there are books [%s] with genreId %d",
-                books.stream().map(b -> String.valueOf(b.getId())).collect(Collectors.joining(",")),
-                genre.getId())
-            );
+        if (booksWithGenre > 0) {
+            throw new ServiceException(String.format("There are %d books with genre %d", booksWithGenre, genre.getId()));
         }
 
-        return daoGenres.delete(genre);
+        try {
+            return daoGenres.delete(genre);
+        } catch (final DataAccessException e) {
+            throw new ServiceException(e);
+        }
     }
 }

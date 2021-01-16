@@ -52,21 +52,17 @@ class DaoGenresNamedJdbcTest {
     @DisplayName("корректно получает все жанры")
     void shouldCorrectGetAllGenres() {
         var expected = List.of(
-            new Author(1, "Novel"),
-            new Author(2, "Fantasy Novel"),
-            new Author(3, "Free Genre without books")
+            new Genre(1, "Novel"),
+            new Genre(2, "Fantasy Novel"),
+            new Genre(3, "Free Genre without books")
         );
 
         var actual = daoGenres.getAll();
 
-        assertThat(actual.size()).isEqualTo(expected.size());
-
-        for (int i = 0; i < expected.size(); i++) { // containsExactlyInAnyOrderElementsOf not works here :\
-            var expectedGenre = expected.get(i);
-            var actualGenre= actual.get(i);
-
-            assertThat(actualGenre).usingRecursiveComparison().isEqualTo(expectedGenre);
-        }
+        assertThat(actual)
+            .hasSize(expected.size())
+            .usingFieldByFieldElementComparator()
+            .containsExactlyInAnyOrderElementsOf(expected);
     }
 
     @Test

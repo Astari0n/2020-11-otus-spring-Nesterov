@@ -2,10 +2,13 @@ package ru.otus.spring.services.impl;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import ru.otus.spring.dao.DaoBooks;
 
+import ru.otus.spring.exception.ServiceException;
 import ru.otus.spring.model.Author;
 import ru.otus.spring.model.Book;
 import ru.otus.spring.model.Genre;
@@ -21,55 +24,115 @@ public class ServiceBooksDao implements ServiceBooks {
     private final DaoBooks daoBooks;
 
     @Override
-    public Book createBook(final Author author, final Genre genre, final String title) {
-        final var book = new Book(author, genre, title);
+    public Book createBook(final Author author, final Genre genre, final String title) throws ServiceException {
+        try {
+            final var book = new Book(author, genre, title);
 
-        long bookId = daoBooks.insert(book);
-        book.setId(bookId);
+            long bookId = daoBooks.insert(book);
+            book.setId(bookId);
 
-        return book;
+            return book;
+        } catch (final DataAccessException e) {
+            throw new ServiceException(e);
+        }
     }
 
     @Override
-    public Book findBookByBookId(final long bookId) {
-        return daoBooks.getByBookId(bookId);
+    public Book findBookByBookId(final long bookId) throws ServiceException {
+        try {
+            return daoBooks.getByBookId(bookId);
+        } catch (final EmptyResultDataAccessException e) {
+            throw new ServiceException("Book not found with bookId " + bookId, e);
+        } catch (final DataAccessException e) {
+            throw new ServiceException(e);
+        }
     }
 
     @Override
-    public List<Book> findBookByAuthorId(final Author author) {
-        return daoBooks.getByAuthorId(author.getId());
+    public List<Book> findBooksByAuthor(final Author author) throws ServiceException {
+        try {
+            return daoBooks.getByAuthorId(author.getId());
+        } catch (final EmptyResultDataAccessException e) {
+            throw new ServiceException("Book not found with author " + author, e);
+        } catch (final DataAccessException e) {
+            throw new ServiceException(e);
+        }
     }
 
     @Override
-    public List<Book> findBookByGenreId(final Genre genre) {
-        return daoBooks.getByGenreId(genre.getId());
+    public int countBooksWithAuthor(final Author author) throws ServiceException {
+        try {
+            return daoBooks.countBooksWithAuthor(author.getId());
+        } catch (final DataAccessException e) {
+            throw new ServiceException(e);
+        }
     }
 
     @Override
-    public int changeBookAuthor(final Book book, final Author newAuthor) {
-        book.setAuthor(newAuthor);
-        return daoBooks.update(book);
+    public List<Book> findBooksByGenre(final Genre genre) throws ServiceException {
+        try {
+            return daoBooks.getByGenreId(genre.getId());
+        } catch (final EmptyResultDataAccessException e) {
+            throw new ServiceException("Book not found with genre " + genre, e);
+        } catch (final DataAccessException e) {
+            throw new ServiceException(e);
+        }
     }
 
     @Override
-    public int changeBookGenre(final Book book, final Genre newGenre) {
-        book.setGenre(newGenre);
-        return daoBooks.update(book);
+    public int countBooksWithGenre(final Genre genre) throws ServiceException {
+        try {
+            return daoBooks.countBooksWithGenreId(genre.getId());
+        } catch (final DataAccessException e) {
+            throw new ServiceException(e);
+        }
     }
 
     @Override
-    public int changeBookTitle(final Book book, final String newTitle) {
-        book.setTitle(newTitle);
-        return daoBooks.update(book);
+    public int changeBookAuthor(final Book book, final Author newAuthor) throws ServiceException {
+        try {
+            book.setAuthor(newAuthor);
+            return daoBooks.update(book);
+        } catch (final DataAccessException e) {
+            throw new ServiceException(e);
+        }
     }
 
     @Override
-    public int deleteBook(final Book book) {
-        return daoBooks.delete(book);
+    public int changeBookGenre(final Book book, final Genre newGenre) throws ServiceException {
+        try {
+            book.setGenre(newGenre);
+            return daoBooks.update(book);
+        } catch (final DataAccessException e) {
+            throw new ServiceException(e);
+        }
     }
 
     @Override
-    public List<Book> getAll() {
-        return daoBooks.getAll();
+    public int changeBookTitle(final Book book, final String newTitle) throws ServiceException {
+        try {
+            book.setTitle(newTitle);
+            return daoBooks.update(book);
+        } catch (final DataAccessException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public int deleteBook(final Book book) throws ServiceException {
+        try {
+            return daoBooks.delete(book);
+        } catch (final DataAccessException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public List<Book> getAll() throws ServiceException {
+        try {
+            return daoBooks.getAll();
+        } catch (final DataAccessException e) {
+            throw new ServiceException(e);
+        }
     }
 }

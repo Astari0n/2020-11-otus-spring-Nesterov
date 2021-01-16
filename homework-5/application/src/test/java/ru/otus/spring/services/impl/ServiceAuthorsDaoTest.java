@@ -10,7 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import ru.otus.spring.dao.DaoAuthors;
-import ru.otus.spring.exception.DeletionException;
+import ru.otus.spring.exception.ServiceException;
 import ru.otus.spring.model.Author;
 
 import java.util.List;
@@ -35,7 +35,7 @@ class ServiceAuthorsDaoTest {
 
     @Test
     @DisplayName("должен создавать автора через дао")
-    void shouldCreateAuthorUsingDao() {
+    void shouldCreateAuthorUsingDao() throws ServiceException {
         var authorName = anyString();
         var expected = serviceAuthorsDao.createAuthor(authorName);
         then(daoAuthors).should().insert(expected);
@@ -43,7 +43,7 @@ class ServiceAuthorsDaoTest {
 
     @Test
     @DisplayName("должен переименовывать автора и обновлять запись в базе через дао")
-    void shouldRenameAuthorNameAndUpdateUsingDao() {
+    void shouldRenameAuthorNameAndUpdateUsingDao() throws ServiceException {
         var author = new Author(1, "first variant of the name");
         serviceAuthorsDao.renameAuthor(author, "second variant of the name");
         then(daoAuthors).should().update(author);
@@ -51,7 +51,7 @@ class ServiceAuthorsDaoTest {
 
     @Test
     @DisplayName("должен искать автора через дао")
-    void shouldFindAuthorUsingDao() {
+    void shouldFindAuthorUsingDao() throws ServiceException {
         var expected = new Author(1, "test name");
 
         when(daoAuthors.getById(anyLong())).thenReturn(expected);
@@ -65,7 +65,7 @@ class ServiceAuthorsDaoTest {
 
     @Test
     @DisplayName("должен получать всех авторов через дао")
-    void shouldGetAllAuthorsUsingDao() {
+    void shouldGetAllAuthorsUsingDao() throws ServiceException {
         var expected = List.of(
             new Author(1, "test"),
             new Author(2, "test 2")
@@ -82,13 +82,14 @@ class ServiceAuthorsDaoTest {
 
     @Test
     @DisplayName("должен удалять автора через дао")
-    void shouldDeleteAuthorUsingDao() throws DeletionException {
+    void shouldDeleteAuthorUsingDao() throws ServiceException {
         var author = new Author(3, "Free Author without books");
         when(daoAuthors.getById(anyLong())).thenThrow(EmptyResultDataAccessException.class);
 
         serviceAuthorsDao.deleteAuthor(author);
         then(daoAuthors).should().delete(author);
 
-        assertThatThrownBy(() -> serviceAuthorsDao.findAuthorByAuthorId(author.getId())).isInstanceOf(EmptyResultDataAccessException.class);
+        assertThatThrownBy(() -> serviceAuthorsDao.findAuthorByAuthorId(author.getId()))
+            .hasCauseInstanceOf(EmptyResultDataAccessException.class);
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import ru.otus.spring.dao.DaoBooks;
+import ru.otus.spring.exception.ServiceException;
 import ru.otus.spring.model.Author;
 import ru.otus.spring.model.Book;
 import ru.otus.spring.model.Genre;
@@ -34,7 +35,7 @@ class ServiceBooksDaoTest {
 
     @Test
     @DisplayName("должен создавать книгу через дао")
-    void shouldCreateBookUsingDao() {
+    void shouldCreateBookUsingDao() throws ServiceException {
         var author = new Author(1, "first author");
         var genre = new Genre(1, "test genre");
         var title = "test title";
@@ -45,7 +46,7 @@ class ServiceBooksDaoTest {
 
     @Test
     @DisplayName("должен искать книгу через дао")
-    void shouldFindBookUsingDao() {
+    void shouldFindBookUsingDao() throws ServiceException {
         var author = new Author(1, "test author");
         var genre = new Genre(1, "test genre");
 
@@ -62,7 +63,7 @@ class ServiceBooksDaoTest {
 
     @Test
     @DisplayName("должен менять автора книги через дао")
-    void shouldChangeBookAuthorUsingDao() {
+    void shouldChangeBookAuthorUsingDao() throws ServiceException {
         var author = new Author(1, "first author");
         var genre = new Genre(1, "test genre");
 
@@ -73,7 +74,7 @@ class ServiceBooksDaoTest {
 
     @Test
     @DisplayName("должен менять жанр книги через дао")
-    void shouldChangeBookGenreUsingDao() {
+    void shouldChangeBookGenreUsingDao() throws ServiceException {
         var author = new Author(1, "test author");
         var genre = new Genre(1, "first genre");
 
@@ -84,7 +85,7 @@ class ServiceBooksDaoTest {
 
     @Test
     @DisplayName("должен менять название книги через дао")
-    void shouldChangeBookTitleUsingDao() {
+    void shouldChangeBookTitleUsingDao() throws ServiceException {
         var author = new Author(1, "test author");
         var genre = new Genre(1, "test genre");
 
@@ -95,7 +96,7 @@ class ServiceBooksDaoTest {
 
     @Test
     @DisplayName("должен удалять книгу через дао")
-    void shouldDeleteBookUsingDao() {
+    void shouldDeleteBookUsingDao() throws ServiceException {
         var author = new Author(1, "test author");
         var genre = new Genre(1, "test genre");
         var book = new Book(1, author, genre, "test title");
@@ -105,12 +106,13 @@ class ServiceBooksDaoTest {
         serviceBooksDao.deleteBook(book);
         then(daoBooks).should().delete(book);
 
-        assertThatThrownBy(() -> serviceBooksDao.findBookByBookId(book.getId())).isInstanceOf(EmptyResultDataAccessException.class);
+        assertThatThrownBy(() -> serviceBooksDao.findBookByBookId(book.getId()))
+            .hasCauseInstanceOf(EmptyResultDataAccessException.class);
     }
 
     @Test
     @DisplayName("должен получать все книги через дао")
-    void getAll() {
+    void getAll() throws ServiceException {
         var expected = List.of(
             new Book(1, new Author(1, "test author"), new Genre(1, "test genre"), "test title 1"),
             new Book(2, new Author(2, "test author"), new Genre(2, "test genre"), "test title 2")

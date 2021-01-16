@@ -59,14 +59,10 @@ class DaoAuthorsNamedJdbcTest {
 
         var actual = daoAuthors.getAll();
 
-        assertThat(actual.size()).isEqualTo(expected.size());
-
-        for (int i = 0; i < expected.size(); i++) { // containsExactlyInAnyOrderElementsOf not works here :\
-            var expectedAuthor = expected.get(i);
-            var actualAuthor = actual.get(i);
-
-            assertThat(actualAuthor).usingRecursiveComparison().isEqualTo(expectedAuthor);
-        }
+        assertThat(actual)
+            .hasSize(expected.size())
+            .usingFieldByFieldElementComparator()
+            .containsExactlyInAnyOrderElementsOf(expected);
     }
 
     @Test

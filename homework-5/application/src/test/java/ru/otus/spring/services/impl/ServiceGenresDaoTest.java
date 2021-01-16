@@ -10,7 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import ru.otus.spring.dao.DaoGenres;
-import ru.otus.spring.exception.DeletionException;
+import ru.otus.spring.exception.ServiceException;
 import ru.otus.spring.model.Genre;
 
 import java.util.List;
@@ -35,7 +35,7 @@ class ServiceGenresDaoTest {
 
     @Test
     @DisplayName("должен создавать жанр через дао")
-    void shouldCreateGenreUsingDao() {
+    void shouldCreateGenreUsingDao() throws ServiceException {
         var genreName = anyString();
         var expected = serviceGenresDao.createGenre(genreName);
         then(daoGenres).should().insert(expected);
@@ -43,7 +43,7 @@ class ServiceGenresDaoTest {
 
     @Test
     @DisplayName("должен переименовывать жанр и обновлять запись в базе через дао")
-    void shouldRenameGenreNameAndUpdateUsingDao() {
+    void shouldRenameGenreNameAndUpdateUsingDao() throws ServiceException {
         var genre = new Genre(1, "first variant of the name");
         serviceGenresDao.renameGenre(genre, "second variant of the name");
         then(daoGenres).should().update(genre);
@@ -51,7 +51,7 @@ class ServiceGenresDaoTest {
 
     @Test
     @DisplayName("должен искать жанр через дао")
-    void shouldFindGenreUsingDao() {
+    void shouldFindGenreUsingDao() throws ServiceException {
         var expected = new Genre(1, "test name");
 
         when(daoGenres.getById(anyLong())).thenReturn(expected);
@@ -82,13 +82,14 @@ class ServiceGenresDaoTest {
 
     @Test
     @DisplayName("должен удалять жанр через дао")
-    void shouldDeleteGenreUsingDao() throws DeletionException {
+    void shouldDeleteGenreUsingDao() throws ServiceException {
         var genre = new Genre(3, "Free Genre without books");
         when(daoGenres.getById(anyLong())).thenThrow(EmptyResultDataAccessException.class);
 
         serviceGenresDao.deleteGenre(genre);
         then(daoGenres).should().delete(genre);
 
-        assertThatThrownBy(() -> serviceGenresDao.findGenreByGenreId(genre.getId())).isInstanceOf(EmptyResultDataAccessException.class);
+        assertThatThrownBy(() -> serviceGenresDao.findGenreByGenreId(genre.getId()))
+            .hasCauseInstanceOf(EmptyResultDataAccessException.class);
     }
 }
