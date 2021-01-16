@@ -65,7 +65,7 @@ class ServiceGenresDaoTest {
 
     @Test
     @DisplayName("должен получать все жанры через дао")
-    void shouldGetAllGenresUsingDao() {
+    void shouldGetAllGenresUsingDao() throws ServiceException {
         var expected = List.of(
             new Genre(1, "test"),
             new Genre(2, "test 2")

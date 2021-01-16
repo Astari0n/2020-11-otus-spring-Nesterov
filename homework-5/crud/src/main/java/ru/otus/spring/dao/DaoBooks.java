@@ -11,11 +11,11 @@ public interface DaoBooks {
 
     List<Book> getByAuthorId(long authorId);
 
-    Integer countBooksWithAuthor(long authorId);
-
     List<Book> getByGenreId(long genreId);
 
-    Integer countBooksWithGenreId(long genreId);
+    Integer countBooksWithAuthor(long authorId);
+
+    Integer countBooksWithGenre(long genreId);
 
     List<Book> getAll();
 

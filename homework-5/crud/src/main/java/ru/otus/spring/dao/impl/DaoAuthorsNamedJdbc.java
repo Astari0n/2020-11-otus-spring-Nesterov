@@ -30,7 +30,7 @@ public class DaoAuthorsNamedJdbc implements DaoAuthors {
 
         jdbc.update(
             "insert into " +
-                "authors (author_name) " +
+                "public.authors (author_name) " +
                 "values (:authorName)",
             new MapSqlParameterSource()
                 .addValue("authorName", author.getName()),
@@ -44,7 +44,7 @@ public class DaoAuthorsNamedJdbc implements DaoAuthors {
     public Author getById(final long authorId) {
         return jdbc.queryForObject(
             "select * " +
-                "from authors " +
+                "from public.authors " +
                 "where author_id = :authorId",
             Map.of("authorId", authorId),
             mapperAuthor
@@ -53,13 +53,13 @@ public class DaoAuthorsNamedJdbc implements DaoAuthors {
 
     @Override
     public List<Author> getAll() {
-        return jdbc.query("select * from authors", mapperAuthor);
+        return jdbc.query("select * from public.authors", mapperAuthor);
     }
 
     @Override
     public int update(final Author author) {
         return jdbc.update(
-            "update authors set " +
+            "update public.authors set " +
                 "author_name = :authorName " +
                 "where author_id = :authorId",
             Map.of(
@@ -72,7 +72,7 @@ public class DaoAuthorsNamedJdbc implements DaoAuthors {
     @Override
     public int delete(final Author author) {
         return jdbc.update(
-            "delete from authors " +
+            "delete from public.authors " +
             "where author_id = :authorId",
             Map.of("authorId", author.getId())
         );

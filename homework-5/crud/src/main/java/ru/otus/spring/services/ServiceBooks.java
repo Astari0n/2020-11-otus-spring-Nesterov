@@ -14,11 +14,15 @@ public interface ServiceBooks {
 
     List<Book> findBooksByAuthor(Author author) throws ServiceException;
 
-    int countBooksWithAuthor(Author author) throws ServiceException;
-
     List<Book> findBooksByGenre(Genre genre) throws ServiceException;
 
+    int countBooksWithAuthor(Author author) throws ServiceException;
+
+    boolean existsBooksWithAuthor(Author author) throws ServiceException;
+
     int countBooksWithGenre(Genre genre) throws ServiceException;
+
+    boolean existsBooksWithGenre(Genre genre) throws ServiceException;
 
     int changeBookAuthor(Book book, Author newAuthor) throws ServiceException;
 

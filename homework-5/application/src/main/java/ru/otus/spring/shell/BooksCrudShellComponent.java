@@ -124,6 +124,36 @@ public class BooksCrudShellComponent {
         return shellMsg;
     }
 
+    @ShellMethod(value = "Print books by author id", key = { "print-books-author", "pba" })
+    public String printBookByAuthorId(final long authorId) {
+        String shellMsg;
+
+        try {
+            final Author author = serviceAuthors.findAuthorByAuthorId(authorId);
+            final List<Book> books = serviceBooks.findBooksByAuthor(author);
+            shellMsg = "Found books: \n" + books.stream().map(Book::toString).collect(Collectors.joining("\n"));
+        } catch (final ServiceException e) {
+            shellMsg = String.format("Books printing failed, %s", e.getLocalizedMessage());
+        }
+
+        return shellMsg;
+    }
+
+    @ShellMethod(value = "Print books by genre id", key = { "print-books-genre", "pbg" })
+    public String printBookByGenreId(final long genreId) {
+        String shellMsg;
+
+        try {
+            final Genre genre = serviceGenres.findGenreByGenreId(genreId);
+            final List<Book> books = serviceBooks.findBooksByGenre(genre);
+            shellMsg = "Found books: \n" + books.stream().map(Book::toString).collect(Collectors.joining("\n"));
+        } catch (final ServiceException e) {
+            shellMsg = String.format("Books printing failed, %s", e.getLocalizedMessage());
+        }
+
+        return shellMsg;
+    }
+
     @ShellMethod(value = "Print all books", key = { "print-all-books", "pab" })
     public String printAllBooks() {
         String shellMsg;

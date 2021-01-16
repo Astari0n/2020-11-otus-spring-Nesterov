@@ -6,11 +6,14 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import ru.otus.spring.dao.DaoAuthors;
+import ru.otus.spring.exception.AuthorServiceException;
 import ru.otus.spring.exception.ServiceException;
-import ru.otus.spring.model.Author;
+
 import ru.otus.spring.services.ServiceAuthors;
 import ru.otus.spring.services.ServiceBooks;
+
+import ru.otus.spring.dao.DaoAuthors;
+import ru.otus.spring.model.Author;
 
 import java.util.List;
 
@@ -31,7 +34,7 @@ public class ServiceAuthorsDao implements ServiceAuthors {
 
             return author;
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new AuthorServiceException(e);
         }
     }
 
@@ -41,7 +44,7 @@ public class ServiceAuthorsDao implements ServiceAuthors {
             author.setName(newAuthorName);
             return daoAuthors.update(author);
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new AuthorServiceException(e);
         }
     }
 
@@ -50,9 +53,9 @@ public class ServiceAuthorsDao implements ServiceAuthors {
         try {
             return daoAuthors.getById(authorId);
         } catch (final EmptyResultDataAccessException e) {
-            throw new ServiceException("author not found with authorId " + authorId, e);
+            throw new AuthorServiceException("Author not found with authorId " + authorId, e);
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new AuthorServiceException(e);
         }
     }
 
@@ -61,22 +64,20 @@ public class ServiceAuthorsDao implements ServiceAuthors {
         try {
             return daoAuthors.getAll();
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new AuthorServiceException(e);
         }
     }
 
     @Override
     public int deleteAuthor(final Author author) throws ServiceException {
-        final var booksWithAuthor = serviceBooks.countBooksWithAuthor(author);
-
-        if (booksWithAuthor > 0) {
-            throw new ServiceException(String.format("There are %d books with authorId %d", booksWithAuthor, author.getId()));
+        if (serviceBooks.existsBooksWithAuthor(author)) {
+            throw new AuthorServiceException("There are some books with authorId " + author.getId());
         }
 
         try {
             return daoAuthors.delete(author);
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new AuthorServiceException(e);
         }
     }
 }

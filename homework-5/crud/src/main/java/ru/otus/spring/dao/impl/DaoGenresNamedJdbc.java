@@ -30,7 +30,7 @@ public class DaoGenresNamedJdbc implements DaoGenres {
 
         jdbc.update(
             "insert into " +
-                "genres (genre_name) " +
+                "public.genres (genre_name) " +
                 "values (:genreName)",
             new MapSqlParameterSource().addValue("genreName", genre.getName()),
             holder
@@ -43,7 +43,7 @@ public class DaoGenresNamedJdbc implements DaoGenres {
     public Genre getById(final long genreId) {
         return jdbc.queryForObject(
             "select * " +
-                "from genres " +
+                "from public.genres " +
                 "where genre_id = :genreId",
             Map.of("genreId", genreId),
             mapperGenre
@@ -52,13 +52,13 @@ public class DaoGenresNamedJdbc implements DaoGenres {
 
     @Override
     public List<Genre> getAll() {
-        return jdbc.query("select * from genres", mapperGenre);
+        return jdbc.query("select * from public.genres", mapperGenre);
     }
 
     @Override
     public int update(final Genre genre) {
         return jdbc.update(
-            "update genres " +
+            "update public.genres " +
                 "set genre_name = :genreName " +
                 "where genre_id = :genreId",
             Map.of(
@@ -71,7 +71,7 @@ public class DaoGenresNamedJdbc implements DaoGenres {
     @Override
     public int delete(final Genre genre) {
         return jdbc.update(
-            "delete from genres " +
+            "delete from public.genres " +
                 "where genre_id = :genreId",
             Map.of("genreId", genre.getId())
         );

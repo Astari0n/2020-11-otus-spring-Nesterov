@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 
 import ru.otus.spring.dao.DaoBooks;
 
+import ru.otus.spring.exception.BookServiceException;
 import ru.otus.spring.exception.ServiceException;
+
 import ru.otus.spring.model.Author;
 import ru.otus.spring.model.Book;
 import ru.otus.spring.model.Genre;
@@ -33,7 +35,7 @@ public class ServiceBooksDao implements ServiceBooks {
 
             return book;
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new BookServiceException(e);
         }
     }
 
@@ -42,9 +44,9 @@ public class ServiceBooksDao implements ServiceBooks {
         try {
             return daoBooks.getByBookId(bookId);
         } catch (final EmptyResultDataAccessException e) {
-            throw new ServiceException("Book not found with bookId " + bookId, e);
+            throw new BookServiceException("Book not found with bookId " + bookId, e);
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new BookServiceException(e);
         }
     }
 
@@ -53,9 +55,9 @@ public class ServiceBooksDao implements ServiceBooks {
         try {
             return daoBooks.getByAuthorId(author.getId());
         } catch (final EmptyResultDataAccessException e) {
-            throw new ServiceException("Book not found with author " + author, e);
+            throw new BookServiceException("Book not found with author " + author, e);
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new BookServiceException(e);
         }
     }
 
@@ -64,8 +66,13 @@ public class ServiceBooksDao implements ServiceBooks {
         try {
             return daoBooks.countBooksWithAuthor(author.getId());
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new BookServiceException(e);
         }
+    }
+
+    @Override
+    public boolean existsBooksWithAuthor(final Author author) throws ServiceException {
+        return countBooksWithAuthor(author) > 0;
     }
 
     @Override
@@ -73,19 +80,24 @@ public class ServiceBooksDao implements ServiceBooks {
         try {
             return daoBooks.getByGenreId(genre.getId());
         } catch (final EmptyResultDataAccessException e) {
-            throw new ServiceException("Book not found with genre " + genre, e);
+            throw new BookServiceException("Book not found with genre " + genre, e);
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new BookServiceException(e);
         }
     }
 
     @Override
     public int countBooksWithGenre(final Genre genre) throws ServiceException {
         try {
-            return daoBooks.countBooksWithGenreId(genre.getId());
+            return daoBooks.countBooksWithGenre(genre.getId());
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new BookServiceException(e);
         }
+    }
+
+    @Override
+    public boolean existsBooksWithGenre(final Genre genre) throws ServiceException {
+        return countBooksWithGenre(genre) > 0;
     }
 
     @Override
@@ -94,7 +106,7 @@ public class ServiceBooksDao implements ServiceBooks {
             book.setAuthor(newAuthor);
             return daoBooks.update(book);
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new BookServiceException(e);
         }
     }
 
@@ -104,7 +116,7 @@ public class ServiceBooksDao implements ServiceBooks {
             book.setGenre(newGenre);
             return daoBooks.update(book);
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new BookServiceException(e);
         }
     }
 
@@ -114,7 +126,7 @@ public class ServiceBooksDao implements ServiceBooks {
             book.setTitle(newTitle);
             return daoBooks.update(book);
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new BookServiceException(e);
         }
     }
 
@@ -123,7 +135,7 @@ public class ServiceBooksDao implements ServiceBooks {
         try {
             return daoBooks.delete(book);
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new BookServiceException(e);
         }
     }
 
@@ -132,7 +144,7 @@ public class ServiceBooksDao implements ServiceBooks {
         try {
             return daoBooks.getAll();
         } catch (final DataAccessException e) {
-            throw new ServiceException(e);
+            throw new BookServiceException(e);
         }
     }
 }
